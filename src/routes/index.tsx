@@ -41,7 +41,7 @@ function Banners({ banners }: { banners: Array<{ id: string; title: string; subt
   const b = banners[i % n];
 
   const inner = (
-    <div className="relative h-44 overflow-hidden rounded-2xl bg-secondary sm:h-64 md:h-80">
+    <div className="relative min-h-56 overflow-hidden rounded-2xl bg-secondary sm:min-h-64 md:min-h-80">
       {b.image_url ? (
         <img src={b.image_url} alt={b.title} className="absolute inset-0 h-full w-full object-cover" />
       ) : null}
