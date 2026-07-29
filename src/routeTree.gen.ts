@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as QuickOrderRouteImport } from './routes/quick-order'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,6 +21,11 @@ import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 const QuickOrderRoute = QuickOrderRouteImport.update({
   id: '/quick-order',
   path: '/quick-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/help': typeof HelpRoute
   '/quick-order': typeof QuickOrderRoute
   '/category/$slug': typeof CategorySlugRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/help': typeof HelpRoute
   '/quick-order': typeof QuickOrderRoute
   '/category/$slug': typeof CategorySlugRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/help': typeof HelpRoute
   '/quick-order': typeof QuickOrderRoute
   '/category/$slug': typeof CategorySlugRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/checkout'
+    | '/help'
     | '/quick-order'
     | '/category/$slug'
     | '/products/$slug'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/checkout'
+    | '/help'
     | '/quick-order'
     | '/category/$slug'
     | '/products/$slug'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/checkout'
+    | '/help'
     | '/quick-order'
     | '/category/$slug'
     | '/products/$slug'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
+  HelpRoute: typeof HelpRoute
   QuickOrderRoute: typeof QuickOrderRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/quick-order'
       fullPath: '/quick-order'
       preLoaderRoute: typeof QuickOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
+  HelpRoute: HelpRoute,
   QuickOrderRoute: QuickOrderRoute,
   CategorySlugRoute: CategorySlugRoute,
   ProductsSlugRoute: ProductsSlugRoute,
