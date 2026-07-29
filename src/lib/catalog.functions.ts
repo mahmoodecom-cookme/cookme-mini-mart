@@ -75,8 +75,29 @@ export const getProduct = createServerFn({ method: "GET" })
     return { product, related: related ?? [] };
   });
 
+export const getCategory = createServerFn({ method: "GET" })
+  .inputValidator((data: { slug: string }) => data)
+  .handler(async ({ data }) => {
+    const db = publicClient();
+    const { data: category } = await db
+      .from("categories")
+      .select("*")
+      .eq("slug", data.slug)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!category) return { category: null, products: [] };
+    const { data: products } = await db
+      .from("products")
+      .select("*, product_variants(*)")
+      .eq("is_active", true)
+      .eq("category_id", category.id)
+      .order("name");
+    return { category, products: products ?? [] };
+  });
+
 export const getSettings = createServerFn({ method: "GET" }).handler(async () => {
   const db = publicClient();
   const { data } = await db.from("store_settings").select("*");
   return data ?? [];
 });
+
