@@ -46,8 +46,9 @@ function QuickOrder() {
         const path = `quick-orders/${Date.now()}-${Math.random().toString(36).slice(2)}.${file.name.split(".").pop()}`;
         const { error } = await supabase.storage.from("uploads").upload(path, file, { upsert: false });
         if (error) throw new Error("Photo upload failed. Please try a smaller image.");
-        imageUrl = supabase.storage.from("uploads").getPublicUrl(path).data.publicUrl;
+        imageUrl = path;
       }
+
       await submit({ data: { ...form, imageUrl } });
       setDone(true);
     } catch (err) {
