@@ -102,7 +102,9 @@ function Banners({ banners }: { banners: Array<{ id: string; title: string; subt
   );
 }
 
-type AnyRow = Record<string, any>;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type AnyRow = any;
+
 
 function Home() {
   const data = Route.useLoaderData() as {
