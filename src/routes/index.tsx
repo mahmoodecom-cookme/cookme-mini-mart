@@ -102,12 +102,22 @@ function Banners({ banners }: { banners: Array<{ id: string; title: string; subt
   );
 }
 
+type AnyRow = Record<string, any>;
+
 function Home() {
-  const { banners, categories, products, settings, campaigns } = Route.useLoaderData();
+  const data = Route.useLoaderData() as {
+    banners: AnyRow[];
+    categories: AnyRow[];
+    products: AnyRow[];
+    settings: { key: string; value: string | null }[];
+    campaigns: AnyRow[];
+  };
+  const { banners, categories, products, settings, campaigns } = data;
   const s = settingsMap(settings);
   const threshold = num(s.free_delivery_threshold, 3000);
   const featured = products.filter((p) => p.is_featured);
   const list = (featured.length > 0 ? featured : products).slice(0, 12);
+
 
   return (
     <SiteLayout>
