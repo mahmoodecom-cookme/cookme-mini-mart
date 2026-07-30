@@ -135,7 +135,7 @@ function ProductsPage() {
     if (!file) return;
     setImporting(true);
     try {
-      const sheet = (await readXlsxFile(file)) as unknown[][];
+      const sheet = (await readXlsxFile(file)) as unknown as unknown[][];
       const header = (sheet[0] ?? []).map((h) => String(h ?? "").trim().toLowerCase());
       const idx = (n: string) => header.indexOf(n);
       const rows = sheet.slice(1).filter((r) => r?.[idx("name")]);
