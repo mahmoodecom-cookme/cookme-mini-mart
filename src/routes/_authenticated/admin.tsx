@@ -12,14 +12,15 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const nav = [
+const nav: { to: string; label: string; icon: typeof BarChart3; exact?: boolean }[] = [
   { to: "/admin", label: "Analytics", icon: BarChart3, exact: true },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/promotions", label: "Promotions", icon: ImageIcon },
   { to: "/admin/messages", label: "Messages", icon: MessageSquare },
   { to: "/admin/settings", label: "Settings", icon: Settings },
-] as const;
+];
+
 
 function AdminLayout() {
   const navigate = useNavigate();
