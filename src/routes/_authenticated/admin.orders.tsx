@@ -1,12 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { ArrowUpDown, ChevronDown, ChevronRight, Search, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import { deleteOrder, getAdminOrders, setOrderStatus } from "@/lib/admin.functions";
 import { money } from "@/lib/format";
 
@@ -15,9 +18,15 @@ export const Route = createFileRoute("/_authenticated/admin/orders")({ component
 const STATUSES = ["pending", "confirmed", "packing", "out_for_delivery", "delivered", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type OrderRow = any;
+
 function OrdersPage() {
   const qc = useQueryClient();
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [sortDesc, setSortDesc] = useState(true);
+  const [open, setOpen] = useState<Record<string, boolean>>({});
   const { data, isLoading } = useQuery({ queryKey: ["admin", "orders"], queryFn: () => getAdminOrders() });
 
   const update = useMutation({
@@ -37,79 +46,154 @@ function OrdersPage() {
     },
   });
 
+  const rows = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return ((data ?? []) as OrderRow[])
+      .filter((o) => (filter === "all" ? true : o.status === filter))
+      .filter((o) =>
+        !q ? true : String(o.order_number).includes(q) || String(o.customer_name).toLowerCase().includes(q) || String(o.phone).includes(q),
+      )
+      .sort((a, b) =>
+        sortDesc
+          ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          : new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      );
+  }, [data, filter, search, sortDesc]);
+
   if (isLoading || !data) return <p className="text-muted-foreground">Loading orders…</p>;
-  const orders = filter === "all" ? data : data.filter((o) => o.status === filter);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Orders</h1>
-        <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All orders</SelectItem>
-            {STATUSES.map((s) => (
-              <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <TooltipProvider>
+      <div className="space-y-4">
+        <div>
+          <h1 className="text-2xl font-bold">Orders</h1>
+          <p className="text-sm text-muted-foreground">{rows.length} order(s) shown.</p>
+        </div>
 
-      {orders.length === 0 && <p className="text-muted-foreground">No orders here yet.</p>}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-56 flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search order #, customer or phone"
+              className="pl-9"
+            />
+          </div>
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              {STATUSES.map((s) => (
+                <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" onClick={() => setSortDesc((v) => !v)}>
+            <ArrowUpDown className="mr-2 h-4 w-4" /> {sortDesc ? "Newest first" : "Oldest first"}
+          </Button>
+        </div>
 
-      <div className="space-y-3">
-        {orders.map((o) => (
-          <Card key={o.id}>
-            <CardContent className="space-y-3 p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold">
-                    #{o.order_number} · {o.customer_name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {o.phone} · {new Date(o.created_at).toLocaleString("en-PK")}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{o.address}</p>
-                  {o.notes && <p className="text-sm italic text-muted-foreground">“{o.notes}”</p>}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={o.status === "delivered" ? "default" : "secondary"}>{o.status.replace(/_/g, " ")}</Badge>
-                  <Select value={o.status} onValueChange={(v) => update.mutate({ id: o.id, status: v as Status })}>
-                    <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {STATUSES.map((s) => (
-                        <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button variant="ghost" size="icon" onClick={() => remove.mutate(o.id)} aria-label="Delete order">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="rounded-lg border">
-                {(o.order_items ?? []).map((it) => (
-                  <div key={it.id} className="flex justify-between border-b px-3 py-2 text-sm last:border-b-0">
-                    <span>
-                      {it.product_name}
-                      {it.variant_label ? ` — ${it.variant_label}` : ""} × {it.quantity}
-                    </span>
-                    <span>{money(Number(it.unit_price) * it.quantity)}</span>
-                  </div>
+        <Card>
+          <CardContent className="overflow-x-auto p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-8" />
+                  <TableHead>Order #</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead className="text-right">Subtotal</TableHead>
+                  <TableHead className="text-right">Discount</TableHead>
+                  <TableHead className="text-right">Delivery</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={12} className="py-8 text-center text-muted-foreground">No orders match your filters.</TableCell>
+                  </TableRow>
+                )}
+                {rows.map((o) => (
+                  <>
+                    <TableRow key={o.id} className="odd:bg-muted/30">
+                      <TableCell>
+                        <button
+                          aria-label="Toggle items"
+                          onClick={() => setOpen((s) => ({ ...s, [o.id]: !s[o.id] }))}
+                          className="grid h-7 w-7 place-items-center rounded-md hover:bg-muted"
+                        >
+                          {open[o.id] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </button>
+                      </TableCell>
+                      <TableCell className="font-semibold">#{o.order_number}</TableCell>
+                      <TableCell className="whitespace-nowrap">{o.customer_name}</TableCell>
+                      <TableCell className="whitespace-nowrap">{o.phone}</TableCell>
+                      <TableCell className="max-w-[14rem]">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="block truncate text-muted-foreground">{o.address}</span>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">{o.address}</TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell className="text-right">{money(o.subtotal)}</TableCell>
+                      <TableCell className="text-right text-primary">{Number(o.discount) > 0 ? `−${money(o.discount)}` : "—"}</TableCell>
+                      <TableCell className="text-right">{money(o.delivery_fee)}</TableCell>
+                      <TableCell className="text-right font-bold">{money(o.total)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <StatusBadge status={o.status} />
+                          <Select value={o.status} onValueChange={(v) => update.mutate({ id: o.id, status: v as Status })}>
+                            <SelectTrigger className="h-8 w-36"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {STATUSES.map((s) => (
+                                <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-muted-foreground">
+                        {new Date(o.created_at).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => remove.mutate(o.id)} aria-label="Delete order">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    {open[o.id] && (
+                      <TableRow key={`${o.id}-items`} className="bg-accent/40">
+                        <TableCell colSpan={12}>
+                          <div className="space-y-1.5 px-2 py-1">
+                            <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Items</p>
+                            {(o.order_items ?? []).map((it: OrderRow) => (
+                              <div key={it.id} className="flex justify-between text-sm">
+                                <span>
+                                  {it.product_name}
+                                  {it.variant_label ? ` — ${it.variant_label}` : ""} × {it.quantity}
+                                </span>
+                                <span>{money(Number(it.unit_price) * it.quantity)}</span>
+                              </div>
+                            ))}
+                            {o.notes && <p className="pt-1 text-sm italic text-muted-foreground">Note: “{o.notes}”</p>}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 ))}
-              </div>
-
-              <div className="flex flex-wrap justify-end gap-4 text-sm">
-                <span>Subtotal {money(o.subtotal)}</span>
-                {Number(o.discount) > 0 && <span className="text-primary">Discount −{money(o.discount)}</span>}
-                <span>Delivery {money(o.delivery_fee)}</span>
-                <span className="font-bold">Total {money(o.total)}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
