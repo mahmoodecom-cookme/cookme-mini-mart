@@ -1,31 +1,21 @@
-import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { BarChart3, Image as ImageIcon, LogOut, MessageSquare, Package, Settings, ShoppingBag } from "lucide-react";
+import { ExternalLink, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { whoAmI } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo.png";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Owner Dashboard — Cook Me Mini Mart" }, { name: "robots", content: "noindex" }] }),
   component: AdminLayout,
 });
 
-const nav: { to: string; label: string; icon: typeof BarChart3; exact?: boolean }[] = [
-  { to: "/admin", label: "Analytics", icon: BarChart3, exact: true },
-  { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
-  { to: "/admin/products", label: "Products", icon: Package },
-  { to: "/admin/promotions", label: "Promotions", icon: ImageIcon },
-  { to: "/admin/messages", label: "Messages", icon: MessageSquare },
-  { to: "/admin/settings", label: "Settings", icon: Settings },
-];
-
-
 function AdminLayout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [state, setState] = useState<"loading" | "ok" | "denied">("loading");
 
   useEffect(() => {
@@ -56,38 +46,31 @@ function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="sticky top-0 z-30 border-b bg-background">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Cook Me Mini Mart" className="h-8 w-auto" />
-            <span className="hidden text-sm font-semibold sm:inline">Owner Dashboard</span>
-          </Link>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="mr-2 h-4 w-4" /> Sign out
-          </Button>
-        </div>
-        <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-2 pb-2">
-          {nav.map((item) => {
-            const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`flex shrink-0 items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                  active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
-                }`}
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-muted/30">
+        <AdminSidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b bg-background px-3 sm:px-5">
+            <SidebarTrigger />
+            <div className="flex items-center gap-1">
+              <a
+                href="/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted"
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </header>
-      <main className="mx-auto max-w-7xl px-4 py-6">
-        <Outlet />
-      </main>
-    </div>
+                <ExternalLink className="h-4 w-4" /> <span className="hidden sm:inline">View store</span>
+              </a>
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="mr-2 h-4 w-4" /> Sign out
+              </Button>
+            </div>
+          </header>
+          <main className="min-w-0 flex-1 px-3 py-5 sm:px-6">
+            <Outlet />
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
