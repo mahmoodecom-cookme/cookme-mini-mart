@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import { getAdminOverview } from "@/lib/admin.functions";
 import { money } from "@/lib/format";
 
@@ -50,9 +52,21 @@ function AnalyticsPage() {
     { label: "New messages", value: String(data.newMessages) },
   ];
 
+  const latest = data.orders.slice(0, 8);
+  const payments = latest.map((o) => ({
+    ref: `COD-${o.order_number}`,
+    amount: Number(o.total),
+    status: o.status === "delivered" ? "paid" : o.status === "cancelled" ? "void" : "pending",
+    date: o.created_at,
+  }));
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Store analytics</h1>
+      <div>
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">Live performance of your store.</p>
+      </div>
+
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         {stats.map((s) => (
           <Card key={s.label}>
@@ -74,7 +88,7 @@ function AnalyticsPage() {
                 <XAxis dataKey="day" fontSize={11} />
                 <YAxis fontSize={11} />
                 <Tooltip formatter={(v: number) => money(v)} />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.2)" />
+                <Area type="monotone" dataKey="revenue" stroke="var(--primary)" fill="color-mix(in oklab, var(--primary) 20%, transparent)" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -89,8 +103,8 @@ function AnalyticsPage() {
                 <XAxis dataKey="day" fontSize={11} />
                 <YAxis fontSize={11} />
                 <Tooltip />
-                <Bar dataKey="visits" fill="hsl(var(--muted-foreground))" radius={3} />
-                <Bar dataKey="orders" fill="hsl(var(--primary))" radius={3} />
+                <Bar dataKey="visits" fill="var(--muted-foreground)" radius={3} />
+                <Bar dataKey="orders" fill="var(--primary)" radius={3} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -105,9 +119,81 @@ function AnalyticsPage() {
                 <XAxis type="number" fontSize={11} />
                 <YAxis type="category" dataKey="name" width={120} fontSize={11} />
                 <Tooltip />
-                <Bar dataKey="qty" fill="hsl(var(--primary))" radius={3} />
+                <Bar dataKey="qty" fill="var(--primary)" radius={3} />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="flex-row items-center justify-between">
+            <CardTitle className="text-base">Latest product orders</CardTitle>
+            <Link to="/admin/orders" className="text-sm font-semibold text-primary">View all</Link>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order #</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {latest.length === 0 && (
+                  <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No orders yet.</TableCell></TableRow>
+                )}
+                {latest.map((o) => (
+                  <TableRow key={o.id} className="odd:bg-muted/30">
+                    <TableCell className="font-medium">#{o.order_number}</TableCell>
+                    <TableCell className="max-w-[10rem] truncate">{o.customer_name}</TableCell>
+                    <TableCell className="text-right">{money(o.total)}</TableCell>
+                    <TableCell><StatusBadge status={o.status} /></TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                      {new Date(o.created_at).toLocaleDateString("en-PK")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-base">Recent payment logs</CardTitle></CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Reference</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Payment</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {payments.length === 0 && (
+                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">No payments yet.</TableCell></TableRow>
+                )}
+                {payments.map((p) => (
+                  <TableRow key={p.ref} className="odd:bg-muted/30">
+                    <TableCell className="font-medium">{p.ref}</TableCell>
+                    <TableCell className="text-right">{money(p.amount)}</TableCell>
+                    <TableCell><StatusBadge status={p.status} /></TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                      {new Date(p.date).toLocaleDateString("en-PK")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <p className="border-t px-4 py-3 text-xs text-muted-foreground">
+              All orders are Cash on Delivery — payment is marked paid once the order is delivered.
+            </p>
           </CardContent>
         </Card>
       </div>
