@@ -275,7 +275,7 @@ export const assistantApply = createServerFn({ method: "POST" })
           const { error } = await db.from("categories").delete().eq("slug", slugify(slug));
           if (error) throw new Error("move its products first");
         } else if (a.kind === "set_order_status") {
-          const orderNumber = str(d.order_number);
+          const orderNumber = Number(String(d.order_number ?? "").replace(/[^0-9]/g, ""));
           const status = str(d.status);
           const allowed = ["pending", "confirmed", "packing", "out_for_delivery", "delivered", "cancelled"];
           if (!orderNumber || !status || !allowed.includes(status)) throw new Error("invalid order update");
