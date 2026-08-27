@@ -219,6 +219,7 @@ export type Database = {
       }
       order_messages: {
         Row: {
+          address: string
           created_at: string
           customer_name: string
           id: string
@@ -228,6 +229,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          address?: string
           created_at?: string
           customer_name: string
           id?: string
@@ -237,6 +239,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          address?: string
           created_at?: string
           customer_name?: string
           id?: string
