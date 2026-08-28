@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { CheckCircle2, Phone, MapPin, Clock, MessageCircle } from "lucide-react";
+import { CheckCircle2, Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react";
 import { submitSupport } from "@/lib/orders.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,8 @@ export const Route = createFileRoute("/help")({
       },
       { property: "og:title", content: "Help & Support — Cook Me Mini Mart" },
       { property: "og:description", content: "FAQs and direct support for your grocery orders in Karachi." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Help,
@@ -84,11 +86,12 @@ function Help() {
       <div className="container-page py-6">
         <h1 className="text-2xl font-extrabold sm:text-3xl">Help &amp; support</h1>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: Phone, t: "Call us", d: "+92 300 0000000" },
-            { icon: MapPin, t: "Our branch", d: "Karachi, Pakistan" },
-            { icon: Clock, t: "Timings", d: "Daily 9:00 AM – 11:00 PM" },
+            { icon: Phone, t: "Call us", d: "+92 300 0000000", href: undefined },
+            { icon: Mail, t: "Email us", d: "cookme024@gmail.com", href: "mailto:cookme024@gmail.com" },
+            { icon: MapPin, t: "Our branch", d: "Karachi, Pakistan", href: undefined },
+            { icon: Clock, t: "Timings", d: "Daily 9:00 AM – 11:00 PM", href: undefined },
           ].map((c) => (
             <div key={c.t} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
@@ -96,7 +99,13 @@ function Help() {
               </span>
               <div className="min-w-0">
                 <p className="text-sm font-bold">{c.t}</p>
-                <p className="truncate text-sm text-muted-foreground">{c.d}</p>
+                {c.href ? (
+                  <a href={c.href} className="block truncate text-sm text-muted-foreground hover:text-primary">
+                    {c.d}
+                  </a>
+                ) : (
+                  <p className="truncate text-sm text-muted-foreground">{c.d}</p>
+                )}
               </div>
             </div>
           ))}
