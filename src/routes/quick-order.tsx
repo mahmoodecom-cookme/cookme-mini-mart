@@ -22,6 +22,8 @@ export const Route = createFileRoute("/quick-order")({
       },
       { property: "og:title", content: "Quick Order — Cook Me Mini Mart" },
       { property: "og:description", content: "Send your grocery list by text or photo and we'll do the rest." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: QuickOrder,
@@ -29,7 +31,7 @@ export const Route = createFileRoute("/quick-order")({
 
 function QuickOrder() {
   const submit = useServerFn(submitQuickOrder);
-  const [form, setForm] = useState({ customerName: "", phone: "", message: "" });
+  const [form, setForm] = useState({ customerName: "", phone: "", address: "", message: "" });
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -38,6 +40,7 @@ function QuickOrder() {
     e.preventDefault();
     if (form.customerName.trim().length < 2) return toast.error("Please enter your name.");
     if (!/^[0-9+\-\s]{7,20}$/.test(form.phone.trim())) return toast.error("Please enter a valid phone number.");
+    if (form.address.trim().length < 8) return toast.error("Please enter your delivery address.");
     if (!form.message.trim() && !file) return toast.error("Type your list or attach a photo.");
     setBusy(true);
     try {
@@ -104,6 +107,20 @@ function QuickOrder() {
               className="mt-1.5 h-12"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label htmlFor="qaddress">Delivery address</Label>
+            <Textarea
+              id="qaddress"
+              required
+              minLength={8}
+              maxLength={500}
+              rows={3}
+              className="mt-1.5"
+              placeholder="House, street, area, Karachi"
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
             />
           </div>
           <div>

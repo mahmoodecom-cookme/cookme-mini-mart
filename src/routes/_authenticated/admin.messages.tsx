@@ -53,6 +53,7 @@ function MessagesPage() {
                     <p className="text-sm text-muted-foreground">
                       {m.phone} · {new Date(m.created_at).toLocaleString("en-PK")}
                     </p>
+                    <p className="text-sm text-muted-foreground">{m.address}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant={m.status === "new" ? "default" : "secondary"}>{m.status.replace(/_/g, " ")}</Badge>
