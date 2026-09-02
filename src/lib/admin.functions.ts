@@ -470,6 +470,32 @@ export const saveSettings = createServerFn({ method: "POST" })
 
 /* --------------------------------- uploads -------------------------------- */
 
+/** Signed upload ticket so the browser can send images and videos straight to storage. */
+export const createUploadTicket = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((d: unknown) =>
+    z
+      .object({ fileName: z.string().trim().min(1).max(200), kind: z.enum(["image", "video"]) })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const dot = data.fileName.lastIndexOf(".");
+    const rawExt = dot > -1 ? data.fileName.slice(dot + 1).toLowerCase() : "";
+    const allowed = data.kind === "video" ? ["mp4", "webm", "ogg", "mov", "m4v"] : ["png", "jpg", "jpeg", "webp", "gif", "avif"];
+    const ext = allowed.includes(rawExt) ? rawExt : data.kind === "video" ? "mp4" : "jpg";
+    const base =
+      (dot > -1 ? data.fileName.slice(0, dot) : data.fileName)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 40) || "file";
+    const path = `media/${Date.now()}-${base}.${ext}`;
+    const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
+    const { data: signed, error } = await db.storage.from("uploads").createSignedUploadUrl(path);
+    if (error || !signed) throw new Error("Could not start the upload. Please try again.");
+    return { path, token: signed.token, url: `/api/public/img/${path}` };
+  });
+
 export const uploadProductImage = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
   .inputValidator((d: unknown) =>
