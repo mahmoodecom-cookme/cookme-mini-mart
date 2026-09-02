@@ -253,16 +253,20 @@ export type Database = {
       orders: {
         Row: {
           address: string
+          city: string | null
           coupon_code: string | null
           created_at: string
           customer_name: string
           delivery_fee: number
           discount: number
           id: string
+          latitude: number | null
+          longitude: number | null
           notes: string | null
           order_number: number
           payment_method: string
           phone: string
+          postal_code: string | null
           status: string
           subtotal: number
           tax: number
@@ -271,16 +275,20 @@ export type Database = {
         }
         Insert: {
           address: string
+          city?: string | null
           coupon_code?: string | null
           created_at?: string
           customer_name: string
           delivery_fee?: number
           discount?: number
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           notes?: string | null
           order_number?: number
           payment_method?: string
           phone: string
+          postal_code?: string | null
           status?: string
           subtotal?: number
           tax?: number
@@ -289,16 +297,20 @@ export type Database = {
         }
         Update: {
           address?: string
+          city?: string | null
           coupon_code?: string | null
           created_at?: string
           customer_name?: string
           delivery_fee?: number
           discount?: number
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           notes?: string | null
           order_number?: number
           payment_method?: string
           phone?: string
+          postal_code?: string | null
           status?: string
           subtotal?: number
           tax?: number
