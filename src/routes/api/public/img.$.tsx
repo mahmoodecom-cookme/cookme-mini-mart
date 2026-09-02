@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/public/img/$")({
     handlers: {
       GET: async ({ params }) => {
         const path = (params as { _splat?: string })._splat ?? "";
-        if (!path.startsWith("products/") || path.includes("..")) {
+        if ((!path.startsWith("products/") && !path.startsWith("media/")) || path.includes("..")) {
           return new Response("Not found", { status: 404 });
         }
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
