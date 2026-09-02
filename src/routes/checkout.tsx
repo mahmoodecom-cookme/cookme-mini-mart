@@ -33,13 +33,31 @@ function Checkout() {
   const submit = useServerFn(placeOrder);
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ customerName: "", phone: "", address: "", notes: "", couponCode: "" });
+  const [form, setForm] = useState({ customerName: "", phone: "", address: "", city: "", postalCode: "", notes: "", couponCode: "" });
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ orderNumber: number; total: number } | null>(null);
 
   const fee = num(settings.delivery_fee, 150);
   const threshold = num(settings.free_delivery_threshold, 3000);
   const delivery = subtotal >= threshold ? 0 : fee;
+
+  /** Fill the text fields from a map pin so every order keeps a readable address too. */
+  async function applyPin(lat: number, lng: number) {
+    setCoords({ lat, lng });
+    try {
+      const place = await reverseGeocode(lat, lng);
+      if (!place) return;
+      setForm((f) => ({
+        ...f,
+        address: place.street || place.label || f.address,
+        city: place.city || f.city,
+        postalCode: place.postcode || f.postalCode,
+      }));
+    } catch {
+      /* keep whatever the customer typed */
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
