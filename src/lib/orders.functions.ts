@@ -8,6 +8,10 @@ export const placeOrder = createServerFn({ method: "POST" })
         customerName: z.string().trim().min(2).max(100),
         phone: z.string().trim().min(7).max(20),
         address: z.string().trim().min(8).max(500),
+        city: z.string().trim().max(120).optional().default(""),
+        postalCode: z.string().trim().max(20).optional().default(""),
+        latitude: z.number().min(-90).max(90).nullable().optional().default(null),
+        longitude: z.number().min(-180).max(180).nullable().optional().default(null),
         notes: z.string().trim().max(1000).optional().default(""),
         couponCode: z.string().trim().max(40).optional().default(""),
         items: z
