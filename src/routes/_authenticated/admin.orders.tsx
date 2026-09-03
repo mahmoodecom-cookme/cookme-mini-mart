@@ -163,9 +163,14 @@ function OrdersPage() {
                         {new Date(o.created_at).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => remove.mutate(o.id)} aria-label="Delete order">
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="outline" size="sm" onClick={() => setDetails(o)}>
+                            <Eye className="mr-1.5 h-4 w-4" /> View details
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => remove.mutate(o.id)} aria-label="Delete order">
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                     {open[o.id] && (
