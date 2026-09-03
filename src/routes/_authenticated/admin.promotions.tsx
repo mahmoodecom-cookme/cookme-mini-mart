@@ -140,7 +140,10 @@ function PromotionsPage() {
               <div className="space-y-1.5"><Label>Title</Label><Input value={banner.title} onChange={(e) => setBanner({ ...banner, title: e.target.value })} /></div>
               <div className="space-y-1.5"><Label>Subtitle</Label><Input value={banner.subtitle} onChange={(e) => setBanner({ ...banner, subtitle: e.target.value })} /></div>
               <div className="space-y-1.5"><Label>Badge</Label><Input value={banner.badge} onChange={(e) => setBanner({ ...banner, badge: e.target.value })} /></div>
-              <div className="space-y-1.5"><Label>Image URL</Label><Input value={banner.image_url} onChange={(e) => setBanner({ ...banner, image_url: e.target.value })} /></div>
+              <div className="space-y-1.5">
+                <Label>Banner image or video</Label>
+                <MediaUpload allowVideo value={banner.image_url} onChange={(url) => setBanner({ ...banner, image_url: url })} />
+              </div>
               <div className="space-y-1.5"><Label>Link</Label><Input value={banner.link_url} onChange={(e) => setBanner({ ...banner, link_url: e.target.value })} placeholder="/products" /></div>
               <label className="flex items-center gap-2 text-sm"><Switch checked={banner.is_active} onCheckedChange={(v) => setBanner({ ...banner, is_active: v })} /> Live</label>
             </div>
