@@ -40,7 +40,32 @@ const actionSchema = z.object({
 });
 export type AssistantAction = z.infer<typeof actionSchema>;
 
-const messageSchema = z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(6000) });
+const MAX_MESSAGE_CHARS = 6000;
+const MAX_HISTORY_CHARS = 20000;
+const MAX_HISTORY_MESSAGES = 12;
+
+/** Never reject long content — clip it, so the chat can't get stuck. */
+const messageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z
+    .string()
+    .transform((c) => (c.length > MAX_MESSAGE_CHARS ? `${c.slice(0, MAX_MESSAGE_CHARS - 3)}...` : c)),
+});
+type ChatMessage = z.infer<typeof messageSchema>;
+
+/** Keep only the most recent messages within a total character budget. */
+function boundHistory(messages: ChatMessage[]): ChatMessage[] {
+  const recent = messages.slice(-MAX_HISTORY_MESSAGES);
+  const kept: ChatMessage[] = [];
+  let total = 0;
+  for (let i = recent.length - 1; i >= 0; i--) {
+    const m = recent[i]!;
+    total += m.content.length;
+    if (total > MAX_HISTORY_CHARS && kept.length > 0) break;
+    kept.unshift(m);
+  }
+  return kept;
+}
 
 const RESPONSE_SCHEMA = {
   type: "object",
@@ -90,7 +115,7 @@ const RESPONSE_SCHEMA = {
 /** Ask the assistant what to do. Nothing is written — it returns a proposal to confirm. */
 export const assistantPropose = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
-  .inputValidator((d: unknown) => z.object({ messages: z.array(messageSchema).min(1).max(30) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ messages: z.array(messageSchema).min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("AI is not configured.");
@@ -141,7 +166,7 @@ recent_orders=${JSON.stringify(orders.data ?? [])}`;
         stream: true,
         store: false,
         instructions: system,
-        input: data.messages.map((m) => ({
+        input: boundHistory(data.messages).map((m) => ({
           role: m.role,
           content: [{ type: m.role === "assistant" ? "output_text" : "input_text", text: m.content }],
         })),

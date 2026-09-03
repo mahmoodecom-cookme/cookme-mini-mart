@@ -2,14 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowUpDown, ChevronDown, ChevronRight, Search, Trash2 } from "lucide-react";
+import { ArrowUpDown, ChevronDown, ChevronRight, Eye, Search, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { LocationMap } from "@/components/site/LocationMap";
 import { deleteOrder, getAdminOrders, setOrderStatus } from "@/lib/admin.functions";
 import { money } from "@/lib/format";
 
@@ -27,6 +29,7 @@ function OrdersPage() {
   const [search, setSearch] = useState("");
   const [sortDesc, setSortDesc] = useState(true);
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [details, setDetails] = useState<OrderRow | null>(null);
   const { data, isLoading } = useQuery({ queryKey: ["admin", "orders"], queryFn: () => getAdminOrders() });
 
   const update = useMutation({
@@ -163,9 +166,14 @@ function OrdersPage() {
                         {new Date(o.created_at).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" onClick={() => remove.mutate(o.id)} aria-label="Delete order">
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="outline" size="sm" onClick={() => setDetails(o)}>
+                            <Eye className="mr-1.5 h-4 w-4" /> View details
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => remove.mutate(o.id)} aria-label="Delete order">
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                     {open[o.id] && (
@@ -193,6 +201,82 @@ function OrdersPage() {
             </Table>
           </CardContent>
         </Card>
+
+        <Dialog open={!!details} onOpenChange={(o) => !o && setDetails(null)}>
+          <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Order #{details?.order_number}</DialogTitle>
+            </DialogHeader>
+            {details && (
+              <div className="space-y-4 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <StatusBadge status={details.status} />
+                  <span className="text-muted-foreground">
+                    {new Date(details.created_at).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })}
+                  </span>
+                </div>
+
+                <div className="grid gap-1">
+                  <p className="font-semibold">{details.customer_name}</p>
+                  <a href={`tel:${details.phone}`} className="text-primary underline-offset-2 hover:underline">
+                    {details.phone}
+                  </a>
+                  <p className="text-muted-foreground">{details.address}</p>
+                  <p className="text-muted-foreground">
+                    {[details.city, details.postal_code].filter(Boolean).join(" · ") || "—"}
+                  </p>
+                </div>
+
+                {details.latitude != null && details.longitude != null ? (
+                  <div className="space-y-1.5">
+                    <LocationMap
+                      lat={Number(details.latitude)}
+                      lng={Number(details.longitude)}
+                      className="h-52 w-full overflow-hidden rounded-xl border border-border"
+                    />
+                    <a
+                      href={`https://www.openstreetmap.org/?mlat=${details.latitude}&mlon=${details.longitude}#map=17/${details.latitude}/${details.longitude}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-primary underline-offset-2 hover:underline"
+                    >
+                      Open pinned location ({Number(details.latitude).toFixed(5)}, {Number(details.longitude).toFixed(5)})
+                    </a>
+                  </div>
+                ) : (
+                  <p className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+                    No map location was saved with this order.
+                  </p>
+                )}
+
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Items</p>
+                  <ul className="mt-1.5 space-y-1.5">
+                    {(details.order_items ?? []).map((it: OrderRow) => (
+                      <li key={it.id} className="flex justify-between gap-3">
+                        <span>
+                          {it.product_name}
+                          {it.variant_label ? ` — ${it.variant_label}` : ""} × {it.quantity}
+                          <span className="ml-1 text-muted-foreground">@ {money(it.unit_price)}</span>
+                        </span>
+                        <span className="font-semibold">{money(Number(it.unit_price) * it.quantity)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="space-y-1 border-t pt-3">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{money(details.subtotal)}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span>{Number(details.discount) > 0 ? `−${money(details.discount)}` : "—"}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Delivery</span><span>{money(details.delivery_fee)}</span></div>
+                  <div className="flex justify-between text-base font-bold"><span>Total</span><span className="text-primary">{money(details.total)}</span></div>
+                </div>
+
+                {details.notes && <p className="italic text-muted-foreground">Note: “{details.notes}”</p>}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );

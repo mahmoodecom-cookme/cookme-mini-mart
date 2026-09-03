@@ -1,17 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Search } from "lucide-react";
 import { getSettings } from "@/lib/catalog.functions";
 import { placeOrder } from "@/lib/orders.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { LocationMap } from "@/components/site/LocationMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { money, settingsMap, num } from "@/lib/format";
 import { useCart } from "@/lib/cart";
+import { reverseGeocode, searchPlaces, type GeoPlace } from "@/lib/geo";
 
 export const Route = createFileRoute("/checkout")({
   loader: () => getSettings(),
@@ -35,12 +37,31 @@ function Checkout() {
 
   const [form, setForm] = useState({ customerName: "", phone: "", address: "", city: "", postalCode: "", notes: "", couponCode: "" });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<GeoPlace[]>([]);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ orderNumber: number; total: number } | null>(null);
 
   const fee = num(settings.delivery_fee, 150);
   const threshold = num(settings.free_delivery_threshold, 3000);
   const delivery = subtotal >= threshold ? 0 : fee;
+
+  useEffect(() => {
+    if (query.trim().length < 3) {
+      setResults([]);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      searchPlaces(query, controller.signal)
+        .then(setResults)
+        .catch(() => setResults([]));
+    }, 400);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query]);
 
   /** Fill the text fields from a map pin so every order keeps a readable address too. */
   async function applyPin(lat: number, lng: number) {
@@ -69,6 +90,8 @@ function Checkout() {
       const res = await submit({
         data: {
           ...form,
+          latitude: coords?.lat ?? null,
+          longitude: coords?.lng ?? null,
           items: items.map((i) => ({
             productId: i.productId,
             name: i.name,
@@ -150,7 +173,60 @@ function Checkout() {
               />
             </div>
             <div>
-              <Label htmlFor="address">Delivery address (Karachi only)</Label>
+              <Label htmlFor="area-search">Search delivery area</Label>
+              <div className="relative mt-1.5">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="area-search"
+                  className="h-12 pl-9"
+                  autoComplete="off"
+                  placeholder="e.g. Gulshan-e-Iqbal Block 6, Karachi"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                {results.length > 0 && (
+                  <ul className="absolute z-30 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-border bg-popover p-1 shadow-lg">
+                    {results.map((p) => (
+                      <li key={`${p.lat},${p.lng},${p.label}`}>
+                        <button
+                          type="button"
+                          className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"
+                          onClick={() => {
+                            setResults([]);
+                            setQuery(p.label);
+                            setCoords({ lat: p.lat, lng: p.lng });
+                            setForm((f) => ({
+                              ...f,
+                              address: p.street || p.label,
+                              city: p.city || f.city,
+                              postalCode: p.postcode || f.postalCode,
+                            }));
+                          }}
+                        >
+                          {p.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Pick your area, then tap or drag the pin for the exact spot. You can always type the address yourself.
+              </p>
+              <LocationMap
+                lat={coords?.lat ?? null}
+                lng={coords?.lng ?? null}
+                onPick={applyPin}
+                className="mt-2 h-56 w-full overflow-hidden rounded-xl border border-border"
+              />
+              {coords && (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Pinned location: {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="address">Street address (Karachi only)</Label>
               <Textarea
                 id="address"
                 required
@@ -161,6 +237,30 @@ function Checkout() {
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  maxLength={120}
+                  className="mt-1.5 h-12"
+                  placeholder="Karachi"
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="postal">Postal code</Label>
+                <Input
+                  id="postal"
+                  maxLength={20}
+                  inputMode="numeric"
+                  className="mt-1.5 h-12"
+                  value={form.postalCode}
+                  onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="notes">Order notes (optional)</Label>

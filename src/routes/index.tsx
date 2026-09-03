@@ -6,6 +6,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Button } from "@/components/ui/button";
 import { settingsMap, money, num } from "@/lib/format";
+import { isVideoUrl } from "@/lib/media";
 
 export const Route = createFileRoute("/")({
   loader: () => getStorefront(),
@@ -43,7 +44,18 @@ function Banners({ banners }: { banners: Array<{ id: string; title: string; subt
   const inner = (
     <div className="relative min-h-56 overflow-hidden rounded-2xl bg-secondary sm:min-h-64 md:min-h-80">
       {b.image_url ? (
-        <img src={b.image_url} alt={b.title} className="absolute inset-0 h-full w-full object-cover" />
+        isVideoUrl(b.image_url) ? (
+          <video
+            src={b.image_url}
+            className="absolute inset-0 h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : (
+          <img src={b.image_url} alt={b.title} className="absolute inset-0 h-full w-full object-cover" />
+        )
       ) : null}
       <div className="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/60 to-transparent" />
       <div className="relative flex h-full flex-col justify-center gap-2 p-5 sm:p-8">

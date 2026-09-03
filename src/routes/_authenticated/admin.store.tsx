@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { MediaUpload } from "@/components/admin/MediaUpload";
 import { getAdminSettings, saveSettings } from "@/lib/admin.functions";
 import { SITE_SECTIONS, type ContentSection } from "@/lib/site-content";
 
@@ -78,7 +79,13 @@ function StoreSettingsPage() {
                     {section.fields.map((f) => (
                       <div key={f.key} className={`space-y-1.5 ${f.type === "textarea" ? "sm:col-span-2" : ""}`}>
                         <Label htmlFor={f.key}>{f.label}</Label>
-                        {f.type === "textarea" ? (
+                        {f.type === "image" ? (
+                          <MediaUpload
+                            allowVideo
+                            value={values[f.key] ?? ""}
+                            onChange={(url) => setValues((v) => ({ ...v, [f.key]: url }))}
+                          />
+                        ) : f.type === "textarea" ? (
                           <Textarea
                             id={f.key}
                             rows={3}
@@ -93,9 +100,6 @@ function StoreSettingsPage() {
                             value={values[f.key] ?? ""}
                             onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
                           />
-                        )}
-                        {f.type === "image" && values[f.key] && (
-                          <img src={values[f.key]} alt="" className="mt-1 h-20 w-auto rounded-md border object-cover" />
                         )}
                       </div>
                     ))}

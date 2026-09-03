@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageManager } from "@/components/admin/ImageManager";
+import { MediaUpload } from "@/components/admin/MediaUpload";
 import { bulkImportProducts, deleteCategory, deleteProduct, getAdminCatalog, saveCategory, saveProduct } from "@/lib/admin.functions";
 import { money, slugify } from "@/lib/format";
 
@@ -452,8 +453,8 @@ function ProductsPage() {
                 <Input value={catDraft.slug} onChange={(e) => setCatDraft({ ...catDraft, slug: e.target.value })} />
               </div>
               <div className="space-y-1.5">
-                <Label>Image URL</Label>
-                <Input value={catDraft.image_url} onChange={(e) => setCatDraft({ ...catDraft, image_url: e.target.value })} />
+                <Label>Category image</Label>
+                <MediaUpload value={catDraft.image_url} onChange={(url) => setCatDraft({ ...catDraft, image_url: url })} />
               </div>
               <label className="flex items-center gap-2 text-sm">
                 <Switch checked={catDraft.is_active} onCheckedChange={(v) => setCatDraft({ ...catDraft, is_active: v })} /> Visible
