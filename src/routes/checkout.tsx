@@ -90,6 +90,8 @@ function Checkout() {
       const res = await submit({
         data: {
           ...form,
+          latitude: coords?.lat ?? null,
+          longitude: coords?.lng ?? null,
           items: items.map((i) => ({
             productId: i.productId,
             name: i.name,
