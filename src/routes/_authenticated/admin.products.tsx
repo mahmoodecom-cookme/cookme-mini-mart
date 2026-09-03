@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageManager } from "@/components/admin/ImageManager";
+import { MediaUpload } from "@/components/admin/MediaUpload";
 import { bulkImportProducts, deleteCategory, deleteProduct, getAdminCatalog, saveCategory, saveProduct } from "@/lib/admin.functions";
 import { money, slugify } from "@/lib/format";
 
