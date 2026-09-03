@@ -1,17 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Search } from "lucide-react";
 import { getSettings } from "@/lib/catalog.functions";
 import { placeOrder } from "@/lib/orders.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { LocationMap } from "@/components/site/LocationMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { money, settingsMap, num } from "@/lib/format";
 import { useCart } from "@/lib/cart";
+import { reverseGeocode, searchPlaces, type GeoPlace } from "@/lib/geo";
 
 export const Route = createFileRoute("/checkout")({
   loader: () => getSettings(),
