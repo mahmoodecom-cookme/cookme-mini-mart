@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { MediaUpload } from "@/components/admin/MediaUpload";
 import { getAdminSettings, saveSettings } from "@/lib/admin.functions";
 import { SITE_SECTIONS, type ContentSection } from "@/lib/site-content";
 
