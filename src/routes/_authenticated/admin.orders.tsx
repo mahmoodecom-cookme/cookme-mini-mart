@@ -29,6 +29,7 @@ function OrdersPage() {
   const [search, setSearch] = useState("");
   const [sortDesc, setSortDesc] = useState(true);
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [details, setDetails] = useState<OrderRow | null>(null);
   const { data, isLoading } = useQuery({ queryKey: ["admin", "orders"], queryFn: () => getAdminOrders() });
 
   const update = useMutation({
