@@ -40,7 +40,32 @@ const actionSchema = z.object({
 });
 export type AssistantAction = z.infer<typeof actionSchema>;
 
-const messageSchema = z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(6000) });
+const MAX_MESSAGE_CHARS = 6000;
+const MAX_HISTORY_CHARS = 20000;
+const MAX_HISTORY_MESSAGES = 12;
+
+/** Never reject long content — clip it, so the chat can't get stuck. */
+const messageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z
+    .string()
+    .transform((c) => (c.length > MAX_MESSAGE_CHARS ? `${c.slice(0, MAX_MESSAGE_CHARS - 3)}...` : c)),
+});
+type ChatMessage = z.infer<typeof messageSchema>;
+
+/** Keep only the most recent messages within a total character budget. */
+function boundHistory(messages: ChatMessage[]): ChatMessage[] {
+  const recent = messages.slice(-MAX_HISTORY_MESSAGES);
+  const kept: ChatMessage[] = [];
+  let total = 0;
+  for (let i = recent.length - 1; i >= 0; i--) {
+    const m = recent[i]!;
+    total += m.content.length;
+    if (total > MAX_HISTORY_CHARS && kept.length > 0) break;
+    kept.unshift(m);
+  }
+  return kept;
+}
 
 const RESPONSE_SCHEMA = {
   type: "object",
