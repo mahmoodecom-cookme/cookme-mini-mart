@@ -115,7 +115,7 @@ const RESPONSE_SCHEMA = {
 /** Ask the assistant what to do. Nothing is written — it returns a proposal to confirm. */
 export const assistantPropose = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
-  .inputValidator((d: unknown) => z.object({ messages: z.array(messageSchema).min(1).max(30) }).parse(d))
+  .inputValidator((d: unknown) => z.object({ messages: z.array(messageSchema).min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("AI is not configured.");
