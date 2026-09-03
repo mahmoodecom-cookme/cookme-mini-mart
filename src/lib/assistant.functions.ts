@@ -166,7 +166,7 @@ recent_orders=${JSON.stringify(orders.data ?? [])}`;
         stream: true,
         store: false,
         instructions: system,
-        input: data.messages.map((m) => ({
+        input: boundHistory(data.messages).map((m) => ({
           role: m.role,
           content: [{ type: m.role === "assistant" ? "output_text" : "input_text", text: m.content }],
         })),
