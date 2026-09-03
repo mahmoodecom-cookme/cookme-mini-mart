@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MediaUpload } from "@/components/admin/MediaUpload";
 import { deletePromo, getAdminPromotions, saveBanner, saveCampaign, saveCoupon } from "@/lib/admin.functions";
 import { money } from "@/lib/format";
 
