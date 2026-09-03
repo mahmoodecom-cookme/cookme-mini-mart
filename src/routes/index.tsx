@@ -6,6 +6,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Button } from "@/components/ui/button";
 import { settingsMap, money, num } from "@/lib/format";
+import { isVideoUrl } from "@/lib/media";
 
 export const Route = createFileRoute("/")({
   loader: () => getStorefront(),
