@@ -37,12 +37,31 @@ function Checkout() {
 
   const [form, setForm] = useState({ customerName: "", phone: "", address: "", city: "", postalCode: "", notes: "", couponCode: "" });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<GeoPlace[]>([]);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ orderNumber: number; total: number } | null>(null);
 
   const fee = num(settings.delivery_fee, 150);
   const threshold = num(settings.free_delivery_threshold, 3000);
   const delivery = subtotal >= threshold ? 0 : fee;
+
+  useEffect(() => {
+    if (query.trim().length < 3) {
+      setResults([]);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      searchPlaces(query, controller.signal)
+        .then(setResults)
+        .catch(() => setResults([]));
+    }, 400);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query]);
 
   /** Fill the text fields from a map pin so every order keeps a readable address too. */
   async function applyPin(lat: number, lng: number) {
