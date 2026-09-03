@@ -150,7 +150,60 @@ function Checkout() {
               />
             </div>
             <div>
-              <Label htmlFor="address">Delivery address (Karachi only)</Label>
+              <Label htmlFor="area-search">Search delivery area</Label>
+              <div className="relative mt-1.5">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="area-search"
+                  className="h-12 pl-9"
+                  autoComplete="off"
+                  placeholder="e.g. Gulshan-e-Iqbal Block 6, Karachi"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+                {results.length > 0 && (
+                  <ul className="absolute z-30 mt-1 max-h-64 w-full overflow-auto rounded-xl border border-border bg-popover p-1 shadow-lg">
+                    {results.map((p) => (
+                      <li key={`${p.lat},${p.lng},${p.label}`}>
+                        <button
+                          type="button"
+                          className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-muted"
+                          onClick={() => {
+                            setResults([]);
+                            setQuery(p.label);
+                            setCoords({ lat: p.lat, lng: p.lng });
+                            setForm((f) => ({
+                              ...f,
+                              address: p.street || p.label,
+                              city: p.city || f.city,
+                              postalCode: p.postcode || f.postalCode,
+                            }));
+                          }}
+                        >
+                          {p.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Pick your area, then tap or drag the pin for the exact spot. You can always type the address yourself.
+              </p>
+              <LocationMap
+                lat={coords?.lat ?? null}
+                lng={coords?.lng ?? null}
+                onPick={applyPin}
+                className="mt-2 h-56 w-full overflow-hidden rounded-xl border border-border"
+              />
+              {coords && (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Pinned location: {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="address">Street address (Karachi only)</Label>
               <Textarea
                 id="address"
                 required
@@ -161,6 +214,30 @@ function Checkout() {
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="city">City</Label>
+                <Input
+                  id="city"
+                  maxLength={120}
+                  className="mt-1.5 h-12"
+                  placeholder="Karachi"
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="postal">Postal code</Label>
+                <Input
+                  id="postal"
+                  maxLength={20}
+                  inputMode="numeric"
+                  className="mt-1.5 h-12"
+                  value={form.postalCode}
+                  onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="notes">Order notes (optional)</Label>
