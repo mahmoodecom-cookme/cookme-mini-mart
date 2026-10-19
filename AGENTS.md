@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the Home/Cart reference styles scoped under their page classes and the Footer class; this prevents visual changes on other storefront and admin pages.
+- Keep the benefit carousel ring math in a browser-safe pure module and test its circular movement; input handling stays in the carousel component.
