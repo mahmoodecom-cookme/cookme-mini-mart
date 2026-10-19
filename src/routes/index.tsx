@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { settingsMap, num } from '@/lib/format';
 import hero from '@/assets/hero-products.webp.asset.json';
 import clipboard from '@/assets/list-clipboard.webp.asset.json';
-import logo from '@/assets/cookme-logo.png';
+import logo from '@/assets/cookme-logo-transparent.png.asset.json';
 
 export const Route = createFileRoute('/')({
   loader: () => getStorefront(),
@@ -35,7 +35,7 @@ function Home() {
   return <SiteLayout><div className="home-design">
     <section className="home-hero">
       <div className="delivery-pill"><Truck/><span><strong>FREE DELIVERY</strong><small>On Orders above {threshold} Rs</small></span></div>
-      <div className="hero-content"><div className="hero-copy"><img src={logo} alt="Cook Me Mini Mart" className="hero-logo"/><p className="hero-eyebrow">EVERYDAY ESSENTIALS</p><h1><span>MADE FRESH</span><br/>MADE FOR YOU</h1><p className="hero-trust">Premium Quality | Hygienically Packed | Trusted Goodness</p><Button asChild variant="secondary" className="hero-order"><Link to="/products">ORDER NOW <ArrowRight/></Link></Button></div><img className="hero-products" src={hero.url} alt="Cook Me packaged everyday essentials on a red podium"/></div>
+      <div className="hero-content"><div className="hero-copy"><img src={logo.url} alt="Cook Me Mini Mart" className="hero-logo"/><p className="hero-eyebrow">EVERYDAY ESSENTIALS</p><h1><span>MADE FRESH</span><br/>MADE FOR YOU</h1><p className="hero-trust">Premium Quality | Hygienically Packed | Trusted Goodness</p><Button asChild variant="secondary" className="hero-order"><Link to="/products">ORDER NOW <ArrowRight/></Link></Button></div><img className="hero-products" src={hero.url} alt="Cook Me packaged everyday essentials on a red podium"/></div>
     </section>
     <div className="home-search"><Search size={20}/><input value={q} onChange={e=>setQ(e.target.value)} aria-label="Search products" placeholder="Search for products…"/><Button variant="ghost" size="icon" aria-label="Search products" onClick={()=>document.getElementById('home-products')?.scrollIntoView({behavior:'smooth'})}><ArrowRight/></Button></div>
     <FeatureCarousel threshold={threshold}/>
