@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { getCatalog } from "@/lib/catalog.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { matchesProduct } from "@/lib/product-search";
 
 export const Route = createFileRoute("/products/")({
+  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === 'string' ? search.q : '' }),
   loader: () => getCatalog(),
   head: () => ({
     meta: [
@@ -18,6 +21,8 @@ export const Route = createFileRoute("/products/")({
       },
       { property: "og:title", content: "All Products — Cook Me Mini Mart" },
       { property: "og:description", content: "Browse every product available for delivery in Karachi." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ProductsPage,
@@ -26,15 +31,18 @@ export const Route = createFileRoute("/products/")({
 function ProductsPage() {
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const { categories, products } = Route.useLoaderData() as { categories: any[]; products: any[] };
-  const [q, setQ] = useState("");
+  const { q } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [input, setInput] = useState(q);
   const [cat, setCat] = useState<string>("all");
+  useEffect(()=>setInput(q),[q]);
+  useEffect(()=>{const timer=setTimeout(()=>{if(input.trim()!==q.trim())navigate({search:prev=>({...prev,q:input.trim()}),replace:true});},300);return()=>clearTimeout(timer);},[input,q,navigate]);
 
   const filtered = useMemo(
     () =>
       products.filter(
         (p) =>
-          (cat === "all" || p.category_id === cat) &&
-          (q.trim() === "" || p.name.toLowerCase().includes(q.trim().toLowerCase())),
+           matchesProduct(p,q,cat),
       ),
     [products, q, cat],
   );
@@ -46,16 +54,16 @@ function ProductsPage() {
         <p className="mt-1 text-sm text-muted-foreground">{products.length} items available for delivery</p>
 
         <div className="sticky top-[104px] z-30 -mx-4 mt-4 bg-background/95 px-4 py-3 backdrop-blur">
-          <div className="relative">
+          <form className="relative" onSubmit={e=>{e.preventDefault();navigate({search:prev=>({...prev,q:input.trim()})});}}>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted-foreground" />
             <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               placeholder="Search products…"
               className="h-12 rounded-xl pl-10 text-base"
               aria-label="Search products"
             />
-          </div>
+          </form>
           <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto">
             <button
               onClick={() => setCat("all")}
@@ -76,12 +84,13 @@ function ProductsPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <p className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-            No products match your search.{" "}
+          <div className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+            <p>{q.trim() ? `No products found for '${q.trim()}'` : 'No products match your search.'}</p>
+            <Button variant="outline" className="my-3" onClick={()=>{setInput('');navigate({search:prev=>({...prev,q:''})});}}>Clear search</Button>{' '}
             <Link to="/quick-order" className="font-bold text-primary">
               Send us your list instead
             </Link>
-          </p>
+          </div>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {filtered.map((p) => (

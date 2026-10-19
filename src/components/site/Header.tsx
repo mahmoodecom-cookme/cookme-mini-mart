@@ -1,10 +1,12 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Search, ShoppingCart, Phone, X } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/cookme-logo.png";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { parseMenuLinks, useSiteSettings } from "@/lib/site-settings";
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
 
 const DEFAULT_NAV = [
   { to: "/", label: "Home" },
@@ -16,6 +18,9 @@ const DEFAULT_NAV = [
 export function Header() {
   const { count } = useCart();
   const [open, setOpen] = useState(false);
+  const [searchOpen,setSearchOpen] = useState(false);
+  const [query,setQuery] = useState('');
+  const navigate = useNavigate();
   const s = useSiteSettings();
   const custom = parseMenuLinks(s.menu_links);
   const nav = custom.length > 0 ? custom : DEFAULT_NAV;
@@ -55,13 +60,7 @@ export function Header() {
               </a>
             ))}
           </nav>
-          <Link
-            to="/products"
-            aria-label="Search products"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-foreground hover:bg-muted"
-          >
-            <Search className="h-5 w-5" />
-          </Link>
+          <Popover open={searchOpen} onOpenChange={setSearchOpen}><PopoverTrigger asChild><Button variant="ghost" size="icon" aria-label="Search products" className="h-10 w-10 rounded-lg"><Search className="h-5 w-5"/></Button></PopoverTrigger><PopoverContent align="end"><form className="flex gap-2" onSubmit={e=>{e.preventDefault();setSearchOpen(false);navigate({to:'/products',search:{q:query.trim()}});}}><Input aria-label="Header search products" placeholder="Search products…" value={query} onChange={e=>setQuery(e.target.value)}/><Button size="icon" type="submit" aria-label="Submit search"><Search className="h-4 w-4"/></Button></form></PopoverContent></Popover>
           <Link to="/cart" aria-label="View cart" className="relative">
             <Button size="icon" variant="default" className="h-10 w-10 rounded-lg">
               <ShoppingCart className="h-5 w-5" />

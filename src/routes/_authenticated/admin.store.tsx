@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -10,13 +11,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { MediaUpload } from "@/components/admin/MediaUpload";
+import { FeatureCardsEditor } from "@/components/admin/FeatureCardsEditor";
 import { getAdminSettings, saveSettings } from "@/lib/admin.functions";
 import { SITE_SECTIONS, type ContentSection } from "@/lib/site-content";
 
-export const Route = createFileRoute("/_authenticated/admin/store")({ component: StoreSettingsPage });
+export const Route = createFileRoute("/_authenticated/admin/store")({ head:()=>({meta:[{title:'Store Settings — Cook Me Owner'},{name:'description',content:'Manage Cook Me homepage artwork and feature cards.'},{property:'og:title',content:'Cook Me Store Settings'},{property:'og:description',content:'Owner-managed Cook Me storefront content.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}), component: StoreSettingsPage });
 
 function StoreSettingsPage() {
   const qc = useQueryClient();
+  const router = useRouter();
+  const saveSection = useServerFn(saveSettings);
   const { data, isLoading } = useQuery({ queryKey: ["admin", "settings"], queryFn: () => getAdminSettings() });
   const [values, setValues] = useState<Record<string, string>>({});
 
@@ -29,15 +33,17 @@ function StoreSettingsPage() {
 
   const save = useMutation({
     mutationFn: (section: ContentSection) =>
-      saveSettings({
+      saveSection({
         data: {
           rows: section.fields.map((f) => ({ key: f.key, value: values[f.key] ?? "", label: f.label })),
         },
       }),
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Saved — your website is updated");
       qc.invalidateQueries({ queryKey: ["admin", "settings"] });
       qc.invalidateQueries({ queryKey: ["site-settings"] });
+      await qc.invalidateQueries({ queryKey: ["storefront"] });
+      await router.invalidate();
     },
     onError: () => toast.error("Could not save this section"),
   });
@@ -66,6 +72,7 @@ function StoreSettingsPage() {
       <Card>
         <CardContent className="p-2 sm:p-4">
           <Accordion type="multiple" className="w-full">
+            <AccordionItem value="features"><AccordionTrigger>Feature cards</AccordionTrigger><AccordionContent><FeatureCardsEditor/></AccordionContent></AccordionItem>
             {SITE_SECTIONS.map((section) => (
               <AccordionItem key={section.id} value={section.id}>
                 <AccordionTrigger className="text-left">
@@ -81,7 +88,7 @@ function StoreSettingsPage() {
                         <Label htmlFor={f.key}>{f.label}</Label>
                         {f.type === "image" ? (
                           <MediaUpload
-                            allowVideo
+                            allowVideo={section.id !== 'hero'}
                             value={values[f.key] ?? ""}
                             onChange={(url) => setValues((v) => ({ ...v, [f.key]: url }))}
                           />
