@@ -20,7 +20,7 @@ function publicClient() {
 
 export const getStorefront = createServerFn({ method: "GET" }).handler(async () => {
   const db = publicClient();
-  const [banners, categories, products, settings, campaigns] = await Promise.all([
+  const [banners, categories, products, settings, campaigns, features] = await Promise.all([
     db.from("banners").select("*").eq("is_active", true).order("sort_order"),
     db.from("categories").select("*").eq("is_active", true).order("sort_order"),
     db
@@ -31,13 +31,16 @@ export const getStorefront = createServerFn({ method: "GET" }).handler(async () 
       .limit(60),
     db.from("store_settings").select("*"),
     db.from("campaigns").select("*").eq("is_active", true).order("sort_order"),
+    db.from("feature_cards").select("*").eq("is_active", true).order("sort_order").order("id"),
   ]);
+  if (features.error || settings.error) throw new Error("Could not load homepage content. Please try again.");
   return {
     banners: banners.data ?? [],
     categories: categories.data ?? [],
     products: products.data ?? [],
     settings: settings.data ?? [],
     campaigns: campaigns.data ?? [],
+    features: features.data ?? [],
   };
 });
 
