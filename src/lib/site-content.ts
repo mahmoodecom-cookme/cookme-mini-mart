@@ -15,6 +15,15 @@ export type ContentSection = {
 /** Every storefront-editable piece of text/image lives in store_settings under these keys. */
 export const SITE_SECTIONS: ContentSection[] = [
   {
+    id: "hero",
+    title: "Hero",
+    description: "Current Home hero artwork for desktop and mobile.",
+    fields: [
+      { key: "hero_image", label: "Desktop hero image", type: "image" },
+      { key: "hero_mobile_image", label: "Mobile hero image", type: "image" },
+    ],
+  },
+  {
     id: "announcement",
     title: "Top header / announcement bar",
     description: "The thin strip shown above the storefront header.",
