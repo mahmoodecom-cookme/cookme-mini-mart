@@ -1,13 +1,13 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, Search, Truck, Wheat, Droplet, Flame, Bean, Coffee, FileText, Headphones, ShoppingBag } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Search, Wheat, Droplet, Flame, Bean, Coffee, FileText, Headphones, ShoppingBag } from 'lucide-react';
 import { getStorefront } from '@/lib/catalog.functions';
 import { SiteLayout } from '@/components/site/SiteLayout';
 import { ProductCard } from '@/components/site/ProductCard';
 import { FeatureCarousel } from '@/components/site/FeatureCarousel';
 import { Button } from '@/components/ui/button';
-import { settingsMap, num } from '@/lib/format';
+import { settingsMap } from '@/lib/format';
 import clipboard from '@/assets/list-clipboard.webp.asset.json';
 import type { FeatureCard } from '@/lib/feature-cards';
 
@@ -28,7 +28,7 @@ function Home() {
   const { data } = useSuspenseQuery(storefrontQuery);
   const {categories,products,settings,campaigns,features} = data as {categories:any[];products:any[];settings:{key:string;value:string|null}[];campaigns:any[];features:FeatureCard[]};
   const navigate = useNavigate();
-  const s=settingsMap(settings), threshold=num(s.free_delivery_threshold,3000);
+  const s=settingsMap(settings);
   const [q,setQ]=useState('');
   const [categoryPage,setCategoryPage]=useState(0);
   const categoryTrack=useRef<HTMLDivElement>(null);
