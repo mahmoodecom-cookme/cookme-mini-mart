@@ -8,6 +8,13 @@
       "when": 1792433820907,
       "tag": "0000_add_feature_cards",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792500987341,
+      "tag": "0001_feature_cards_owner_policy",
+      "breakpoints": true
     }
   ]
 }
