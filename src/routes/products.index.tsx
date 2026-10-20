@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, type SearchSchemaInput } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { getCatalog } from "@/lib/catalog.functions";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { matchesProduct } from "@/lib/product-search";
 
 export const Route = createFileRoute("/products/")({
-  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === 'string' ? search.q : '' }),
+  validateSearch: (search: Record<string, unknown> & SearchSchemaInput) => ({ q: typeof search.q === 'string' ? search.q : '' }),
   loader: () => getCatalog(),
   head: () => ({
     meta: [
