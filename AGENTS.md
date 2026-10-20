@@ -11,3 +11,5 @@
 
 - Keep the Home/Cart reference styles scoped under their page classes and the Footer class; this prevents visual changes on other storefront and admin pages.
 - Keep the benefit carousel ring math in a browser-safe pure module and test its circular movement; input handling stays in the carousel component.
+- Home hero artwork uses store_settings hero_image/hero_mobile_image; active feature_cards feed the non-cloning carousel. Admin saves invalidate the storefront query so both surfaces share current data.
+- Catalogue query state lives in URL search parameters; shared pure matching logic combines text search with category filtering.

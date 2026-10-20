@@ -1,0 +1,12 @@
+import { test, expect } from 'bun:test';
+import { activeFeatures, isCircular } from './feature-cards';
+import { featureOffset, stepFeature } from './feature-carousel';
+import { matchesProduct } from './product-search';
+const cards=Array.from({length:6},(_,i)=>({id:String(i),title:String(i),description:'',icon:'truck',sort_order:i,is_active:true}));
+test('six unique active cards enable the ring without cloning',()=>{expect(isCircular(cards)).toBe(true);expect(activeFeatures([...cards,cards[0]]).length).toBe(6);});
+test('fewer than six active cards use static layout',()=>{expect(isCircular(cards.slice(0,5))).toBe(false);expect(isCircular(cards.map((c,i)=>({...c,is_active:i<5})))).toBe(false);});
+test('initial six-card positions match requested order',()=>{expect(cards.map((_,i)=>featureOffset(i,1,6))).toEqual([-1,0,1,2,-3,-2]);});
+test('larger rings have five unique visible slots and wrap',()=>{for(let c=0;c<8;c++){const offsets=Array.from({length:8},(_,i)=>featureOffset(i,c,8));expect(offsets.filter(o=>Math.abs(o)<=2).sort()).toEqual([-1,-2,0,1,2].sort());}expect(stepFeature(7,1,8)).toBe(0);});
+test('search trims and matches name case-insensitively',()=>{expect(matchesProduct({name:'Basmati Rice'},' RICE ','all')).toBe(true);expect(matchesProduct({name:'Tea'},'rice','all')).toBe(false);});
+test('search matches description and category',()=>{expect(matchesProduct({name:'Oil',description:'Premium cooking'},'COOKING','all')).toBe(true);expect(matchesProduct({name:'Oil',categories:{name:'Pantry'}},'pantry','all')).toBe(true);});
+test('category and query filters work together',()=>{expect(matchesProduct({name:'Rice',category_id:'a'},'rice','b')).toBe(false);expect(matchesProduct({name:'Rice',category_id:'a'},'rice','a')).toBe(true);});
