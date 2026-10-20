@@ -1,0 +1,1 @@
+ALTER POLICY "Feature cards admin access" ON public.feature_cards USING (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')) WITH CHECK (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin'));

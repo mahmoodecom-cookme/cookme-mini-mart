@@ -461,9 +461,10 @@ export const saveSettings = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
     for (const r of data.rows) {
-      await db
+      const { error } = await db
         .from("store_settings")
         .upsert({ key: r.key, value: r.value, label: r.label ?? null, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      if (error) throw new Error("Could not save store settings.");
     }
     return { ok: true as const };
   });
