@@ -306,8 +306,9 @@
 .home-design .category-dots span { width: 10px; height: 10px; }
 
 @media (min-width: 1024px) {
-  .home-design .feature-carousel { height: 570px; }
+  .home-design .feature-carousel { height: 640px; }
   .home-design .benefit-slide {
+    top: 52%;
     width: 400px;
     height: 590px;
     margin-top: -295px;
