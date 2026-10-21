@@ -223,3 +223,124 @@
  .design-footer{padding:42px 40px 25px;}.footer-brand{padding:25px 35px;gap:30px;min-height:225px;margin-bottom:40px;}.footer-logo{width:180px;height:130px;}.footer-brand>p{font-size:19px;line-height:1.9;}.footer-basket{width:280px;height:220px;}.footer-sections{grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;}.footer-sections h3{font-size:16px;}.footer-sections header p{font-size:12px;}.footer-sections header>span{width:40px;height:40px;}.footer-sections li>a{font-size:14px;padding:16px 0;}.footer-sections li small{font-size:11px;}.footer-copyright{font-size:12px;padding-top:35px;}
 }
 @media (prefers-reduced-motion:reduce) {.benefit-slide{transition:none;}.home-design *{scroll-behavior:auto;}.home-product-grid img{transition:none;}}
+
+/* Home card sections follow the supplied desktop references while keeping the existing data and controls. */
+.home-design .feature-carousel {
+  height: 390px;
+  perspective: 1200px;
+  isolation: isolate;
+}
+.home-design .feature-carousel::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 8%;
+  right: 8%;
+  top: 39%;
+  height: 38%;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--design-cream) 76%, transparent);
+  filter: blur(18px);
+  pointer-events: none;
+}
+.home-design .benefit-slide {
+  top: 50%;
+  width: 210px;
+  height: 300px;
+  margin-top: -150px;
+  margin-left: -105px;
+  padding: 26px 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 18px;
+  text-align: center;
+  background: var(--design-cream);
+  box-shadow: 0 12px 20px color-mix(in oklab, var(--design-dark) 24%, transparent);
+  z-index: 2;
+}
+.home-design .benefit-slide strong { font-size: 18px; line-height: 1.25; }
+.home-design .benefit-slide>span:last-child { font-size: 14px; line-height: 1.5; color: var(--design-gray); }
+.home-design .benefit-icon { width: 58px; height: 58px; }
+.home-design .benefit-icon svg { width: 31px; height: 31px; }
+.home-design .benefit-heart { width: 34px; height: 34px; right: 14px; top: 14px; box-shadow: var(--design-shadow); }
+.home-design .benefit-heart svg { width: 18px; height: 18px; }
+.home-design .benefit-slide[data-offset="0"] { transform: translateX(0) scale(1); z-index: 5; }
+.home-design .benefit-slide[data-offset="-1"] { transform: translateX(-90%) scale(.82) rotateY(8deg); opacity: 1; z-index: 4; }
+.home-design .benefit-slide[data-offset="1"] { transform: translateX(90%) scale(.82) rotateY(-8deg); opacity: 1; z-index: 4; }
+.home-design .benefit-slide[data-offset="-2"] { transform: translateX(-165%) scale(.64) rotateY(15deg); opacity: .72; z-index: 3; }
+.home-design .benefit-slide[data-offset="2"] { transform: translateX(165%) scale(.64) rotateY(-15deg); opacity: .72; z-index: 3; }
+.home-design .benefit-slide[data-offset="-3"] { transform: translateX(-200%) scale(.5); opacity: 0; z-index: 0; }
+
+.home-design .home-category {
+  border: 1px solid color-mix(in oklab, var(--design-red) 42%, var(--design-white));
+  border-radius: 22px;
+  box-shadow: 0 13px 24px color-mix(in oklab, var(--design-dark) 14%, transparent);
+  background: var(--design-white);
+}
+.home-design .category-photo {
+  aspect-ratio: .82 / 1;
+  padding: 9px;
+  background: var(--design-white);
+}
+.home-design .category-photo img {
+  object-fit: contain;
+  border-radius: 18px;
+  background: var(--design-pink);
+}
+.home-design .category-label {
+  min-height: 150px;
+  padding: 34px 12px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--design-button);
+}
+.home-design .category-label>span { width: 48px; height: 48px; top: -24px; box-shadow: var(--design-shadow); }
+.home-design .category-label svg { width: 25px; height: 25px; }
+.home-design .category-label strong { font-size: 17px; line-height: 1.3; }
+.home-design .category-label i { width: 38px; border-bottom-width: 2px; margin: 2px auto 0; }
+.home-design .category-dots { gap: 12px; padding-top: 14px; }
+.home-design .category-dots span { width: 10px; height: 10px; }
+
+@media (min-width: 1024px) {
+  .home-design .feature-carousel { height: 570px; }
+  .home-design .benefit-slide {
+    width: 400px;
+    height: 590px;
+    margin-top: -295px;
+    margin-left: -200px;
+    padding: 58px 36px;
+    gap: 22px;
+    border-radius: 24px;
+  }
+  .home-design .benefit-slide strong { font-size: 32px; }
+  .home-design .benefit-slide>span:last-child { font-size: 24px; }
+  .home-design .benefit-icon { width: 112px; height: 112px; }
+  .home-design .benefit-icon svg { width: 56px; height: 56px; }
+  .home-design .benefit-heart { width: 72px; height: 72px; right: 24px; top: 24px; }
+  .home-design .benefit-heart svg { width: 36px; height: 36px; }
+  .home-design .benefit-slide[data-offset="-1"] { transform: translateX(-88%) scale(.68) rotateY(7deg); }
+  .home-design .benefit-slide[data-offset="1"] { transform: translateX(88%) scale(.68) rotateY(-7deg); }
+  .home-design .benefit-slide[data-offset="-2"] { transform: translateX(-160%) scale(.47) rotateY(12deg); }
+  .home-design .benefit-slide[data-offset="2"] { transform: translateX(160%) scale(.47) rotateY(-12deg); }
+  .home-design .benefit-slide[data-offset="-3"] { transform: translateX(-200%) scale(.4); }
+  .home-design .category-label { min-height: 190px; }
+  .home-design .category-label strong { font-size: 24px; }
+}
+@media (max-width: 767px) {
+  .home-design .feature-carousel { height: 350px; }
+  .home-design .benefit-slide { width: 218px; height: 300px; margin-left: -109px; margin-top: -150px; }
+  .home-design .benefit-slide[data-offset="-1"] { transform: translateX(-70%) scale(.78) rotateY(7deg); }
+  .home-design .benefit-slide[data-offset="1"] { transform: translateX(70%) scale(.78) rotateY(-7deg); }
+  .home-design .benefit-slide[data-offset="-2"] { transform: translateX(-120%) scale(.58) rotateY(12deg); }
+  .home-design .benefit-slide[data-offset="2"] { transform: translateX(120%) scale(.58) rotateY(-12deg); }
+  .home-design .benefit-slide strong { font-size: 17px; }
+  .home-design .benefit-slide>span:last-child { font-size: 13px; }
+  .home-design .category-label { min-height: 104px; padding-inline: 7px; }
+  .home-design .category-label strong { font-size: 12px; }
+  .home-design .category-label>span { width: 38px; height: 38px; top: -19px; }
+  .home-design .category-label svg { width: 20px; height: 20px; }
+}
