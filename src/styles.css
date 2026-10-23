@@ -388,8 +388,8 @@
 }
 .home-design .benefit-heart svg { width: 20px; height: 20px; }
 .home-design .benefit-slide[data-offset="0"] { transform: translateX(0) scale(1); z-index: 5; }
-.home-design .benefit-slide[data-offset="-1"] { transform: translateX(-86%) scale(.8) rotateY(12deg) skewY(2deg); opacity: 1; z-index: 4; }
-.home-design .benefit-slide[data-offset="1"] { transform: translateX(86%) scale(.8) rotateY(-12deg) skewY(-2deg); opacity: 1; z-index: 4; }
+.home-design .benefit-slide[data-offset="-1"] { transform: translateX(-84%) scale(.8) rotateY(12deg) skewY(2deg); opacity: 1; z-index: 4; }
+.home-design .benefit-slide[data-offset="1"] { transform: translateX(84%) scale(.8) rotateY(-12deg) skewY(-2deg); opacity: 1; z-index: 4; }
 .home-design .benefit-slide[data-offset="-2"] { transform: translateX(-141%) scale(.6) rotateY(12deg) skewY(2deg); opacity: .85; filter: blur(1px); z-index: 3; }
 .home-design .benefit-slide[data-offset="2"] { transform: translateX(141%) scale(.6) rotateY(-12deg) skewY(-2deg); opacity: .85; filter: blur(1px); z-index: 3; }
 .home-design .benefit-slide[data-offset="-3"],
@@ -492,8 +492,8 @@
   .home-design .benefit-icon svg { width: 58px; height: 58px; }
   .home-design .benefit-heart { width: 74px; height: 74px; right: 22px; top: 22px; }
   .home-design .benefit-heart svg { width: 34px; height: 34px; }
-  .home-design .benefit-slide[data-offset="-1"] { transform: translateX(-86%) scale(.8) rotateY(12deg) skewY(2deg); }
-  .home-design .benefit-slide[data-offset="1"] { transform: translateX(86%) scale(.8) rotateY(-12deg) skewY(-2deg); }
+  .home-design .benefit-slide[data-offset="-1"] { transform: translateX(-84%) scale(.8) rotateY(12deg) skewY(2deg); }
+  .home-design .benefit-slide[data-offset="1"] { transform: translateX(84%) scale(.8) rotateY(-12deg) skewY(-2deg); }
   .home-design .benefit-slide[data-offset="-2"] { transform: translateX(-141%) scale(.6) rotateY(12deg) skewY(2deg); opacity: .85; filter: blur(1.5px); }
   .home-design .benefit-slide[data-offset="2"] { transform: translateX(141%) scale(.6) rotateY(-12deg) skewY(-2deg); opacity: .85; filter: blur(1.5px); }
   .home-design .benefit-slide[data-offset="-3"],
@@ -505,7 +505,7 @@
   .home-design .category-track { gap: 28px; }
   .home-design .home-category { flex: 1 0 calc((100% - 112px) / 5); }
   .home-design .category-label { min-height: 190px; }
-  .home-design .category-label strong { font-size: 36px; max-width: 5.5em; }
+  .home-design .category-label strong { font-size: 36px; max-width: 5em; }
   .home-design .category-arrow { width: 64px; height: 64px; }
   .home-design .category-arrow svg { width: 30px; height: 30px; }
   .home-design .category-arrow.prev { left: -30px; }
