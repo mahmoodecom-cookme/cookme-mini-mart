@@ -393,7 +393,7 @@
 .home-design .benefit-slide[data-offset="-2"] { transform: translateX(-146%) scale(.6) rotateY(12deg) skewY(2deg); opacity: .85; filter: blur(1px); z-index: 3; }
 .home-design .benefit-slide[data-offset="2"] { transform: translateX(146%) scale(.6) rotateY(-12deg) skewY(-2deg); opacity: .85; filter: blur(1px); z-index: 3; }
 .home-design .benefit-slide[data-offset="-3"],
-.home-design .benefit-slide[data-offset="3"] { transform: translateX(-192%) scale(.6); opacity: .25; filter: blur(5px); z-index: 1; pointer-events: none; }
+.home-design .benefit-slide[data-offset="3"] { transform: translateX(-176%) scale(.6); opacity: .25; filter: blur(5px); z-index: 1; pointer-events: none; }
 .home-design .benefit-slide[data-offset="3"] { transform: translateX(176%) scale(.6); }
 .home-design .benefit-slide[data-offset="-2"] .benefit-heart,
 .home-design .benefit-slide[data-offset="2"] .benefit-heart,
