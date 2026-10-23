@@ -1,5 +1,6 @@
 # Storefront dashboard sync
 - [x] Match Home benefit and category card sections to the newly supplied references while preserving interactions.
+- [x] Re-skin both card sections to the 2026-10-21 pixel-perfect references (exact card texts, category names/order and badge icons) without changing mechanics.
 - [x] Connect hero artwork to Store Settings without visual changes.
 - [x] Add admin-controlled unique feature cards and variable circular ring.
 - [x] Connect Home/Header search and URL-based catalogue filtering.
