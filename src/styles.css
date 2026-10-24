@@ -184,7 +184,7 @@
 .hero-trust {color:var(--design-white);font-size:6px;line-height:1.7;margin-top:10px;max-width:205px;}
 .hero-order {border-radius:24px;height:30px;font-size:9px;margin-top:18px;background:var(--design-dark);color:var(--design-white);padding-inline:14px;}
 .hero-products {width:52%;object-fit:contain;mix-blend-mode:normal;margin-top:45px;margin-left:-3%;}
-.home-search {position:relative;z-index:2;display:flex;align-items:center;gap:10px;background:var(--design-white);border-radius:30px;box-shadow:var(--design-shadow);width:min(85%,500px);margin:-22px auto 28px;padding:4px 8px 4px 18px;height:46px;}
+.home-search {position:relative;z-index:2;display:flex;align-items:center;gap:10px;background:var(--design-white);border-radius:30px;box-shadow:var(--design-shadow);width:min(85%,500px);margin:-22px auto 44px;padding:4px 8px 4px 18px;height:46px;}
 .home-search input {width:100%;min-width:0;outline:none;font-size:12px;background:transparent;}
 .home-search>svg {color:var(--design-gray);flex-shrink:0;}.home-search button {color:var(--design-red);border-radius:50%;flex-shrink:0;}
 .feature-carousel {position:relative;perspective:1000px;height:220px;overflow:hidden;touch-action:pan-y;outline-offset:-5px;}
