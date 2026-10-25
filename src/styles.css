@@ -555,7 +555,7 @@
    4) MOBILE  (< 768): ~1.5 category cards visible, side feature cards peek
    --------------------------------------------------------------------- */
 @media (max-width: 767px) {
-  .home-design .feature-carousel { --fw: 58cqw; }
+  .home-design .feature-carousel { --fw: 58cqw; margin-top: 9cqw; }   /* extra gap between the search bar and the cards */
   .home-design .benefit-slide[data-offset="-1"] { transform: translateX(-74%)  scale(.764) rotateY(-18.6deg); }
   .home-design .benefit-slide[data-offset="1"]  { transform: translateX(74%)   scale(.764) rotateY(18.6deg); }
   .home-design .benefit-slide[data-offset="-2"] { transform: translateX(-118%) scale(.58)  rotateY(-14.5deg); }
@@ -569,9 +569,9 @@
   .home-design .category-section .section-heading > a { font-size: 3.7cqw; }
   .home-design .category-section .section-heading > a svg { width: 4.4cqw; height: 4.4cqw; }
   .home-design .category-track { gap: 3.4cqw; padding-bottom: 5cqw; }
-  .home-design .home-category { flex-basis: 64%; scroll-snap-align: center; }
-  .home-design .category-arrow { top: 50cqw; width: 11cqw; height: 11cqw; }
-  .home-design .category-arrow svg { width: 5.4cqw; height: 5.4cqw; }
+  .home-design .home-category { flex-basis: 45%; scroll-snap-align: start; }
+  .home-design .category-arrow { top: 32cqw; width: 9cqw; height: 9cqw; }
+  .home-design .category-arrow svg { width: 4.4cqw; height: 4.4cqw; }
   .home-design .category-arrow.prev { left: -3cqw; }
   .home-design .category-arrow.next { right: -3cqw; }
   .home-design .category-dots { gap: 3cqw; padding-top: 0; }
