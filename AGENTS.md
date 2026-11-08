@@ -13,3 +13,4 @@
 - Keep the benefit carousel ring math in a browser-safe pure module and test its circular movement; input handling stays in the carousel component.
 - Home hero artwork uses store_settings hero_image/hero_mobile_image; active feature_cards feed the non-cloning carousel. Admin saves invalidate the storefront query so both surfaces share current data.
 - Catalogue query state lives in URL search parameters; shared pure matching logic combines text search with category filtering.
+- Homepage promo cards use their own public-active/admin-managed table and a reusable image-only carousel; keep upload, ordering, and storefront cache invalidation on that shared data path.

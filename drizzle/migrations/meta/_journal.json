@@ -15,6 +15,13 @@
       "when": 1792500987341,
       "tag": "0001_feature_cards_owner_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794154040874,
+      "tag": "0002_create_promo_cards",
+      "breakpoints": true
     }
   ]
 }
