@@ -9,3 +9,7 @@
 - [x] Match populated and empty Cart without changing shopping logic.
 - [x] Replace global Footer with reference design and existing links.
 - [x] Verify desktop/tablet/mobile and shopping navigation.
+- [ ] Add database-backed Promo Cards with five replaceable placeholder offers.
+- [ ] Add owner controls for promo-card upload, links, ordering, visibility, replacement, and deletion.
+- [ ] Add the responsive swipeable promo carousel between Home search and benefit cards.
+- [ ] Verify admin updates, storefront rendering, and required screen widths.
