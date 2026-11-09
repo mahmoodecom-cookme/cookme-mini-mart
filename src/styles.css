@@ -357,7 +357,7 @@
 .home-design .promo-card-track:active { cursor: grabbing; }
 .home-design .promo-card { position: relative; display: block; flex: 0 0 max(36vw, 120px); aspect-ratio: 5 / 8; overflow: hidden; scroll-snap-align: start; border-radius: 14px; box-shadow: var(--design-shadow); background: var(--design-pink); color: inherit; transition: transform 160ms ease, box-shadow 160ms ease; }
 .home-design .promo-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; }
-.home-design .promo-card:has(a) { cursor: pointer; }
+.home-design .promo-card-link { cursor: pointer; }
 .home-design .promo-card:active { transform: scale(.985); }
 .home-design .promo-card-skeleton,.home-design .promo-card-fallback { position: absolute; inset: 0; background: var(--design-pink); }
 .home-design .promo-card-skeleton { background: linear-gradient(100deg, var(--design-pink) 25%, #ffe0e2 42%, var(--design-pink) 60%); background-size: 200% 100%; animation: promo-shimmer 1.4s ease-in-out infinite; }

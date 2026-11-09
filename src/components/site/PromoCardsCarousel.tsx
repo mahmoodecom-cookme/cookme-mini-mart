@@ -20,6 +20,7 @@ function PromoImage({ image }: { image: PromoCard }) {
 export function PromoCardsCarousel({ cards }: { cards: PromoCard[] }) {
   const track = useRef<HTMLDivElement>(null);
   const drag = useRef<{ startX: number; scrollLeft: number; moved: boolean } | null>(null);
+  const dragged = useRef(false);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
   const refresh = () => {
@@ -42,11 +43,11 @@ export function PromoCardsCarousel({ cards }: { cards: PromoCard[] }) {
         <div ref={track} className="promo-card-track no-scrollbar" onScroll={refresh}
           onMouseDown={(e) => { if (e.button !== 0) return; drag.current = { startX: e.clientX, scrollLeft: e.currentTarget.scrollLeft, moved: false }; }}
           onMouseMove={(e) => { const d = drag.current; if (!d || !e.buttons) return; const dx = e.clientX - d.startX; if (Math.abs(dx) > 4) d.moved = true; if (d.moved) e.currentTarget.scrollLeft = d.scrollLeft - dx; }}
-          onMouseUp={() => { if (drag.current?.moved) requestAnimationFrame(refresh); drag.current = null; }}
+          onMouseUp={() => { if (drag.current?.moved) { dragged.current = true; requestAnimationFrame(refresh); window.setTimeout(() => { dragged.current = false; }, 200); } drag.current = null; }}
           onMouseLeave={() => { drag.current = null; }}>
           {cards.map((card) => {
             const content = <PromoImage image={card} />;
-            return card.link_url ? <a key={card.id} className="promo-card" href={card.link_url} draggable={false} onClick={(e) => { if (drag.current?.moved) e.preventDefault(); }} onDragStart={(e) => e.preventDefault()}>{content}</a>
+            return card.link_url ? <a key={card.id} className="promo-card promo-card-link" href={card.link_url} draggable={false} onClick={(e) => { if (dragged.current) e.preventDefault(); }} onDragStart={(e) => e.preventDefault()}>{content}</a>
               : <div key={card.id} className="promo-card" tabIndex={0} role="group" aria-label="Promotional offer">{content}</div>;
           })}
         </div>

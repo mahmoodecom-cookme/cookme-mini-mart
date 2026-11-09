@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MediaUpload } from "@/components/admin/MediaUpload";
 import { deletePromo, getAdminPromotions, saveBanner, saveCampaign, saveCoupon } from "@/lib/admin.functions";
 import { money } from "@/lib/format";
+import { PromoCardsManager } from "@/components/admin/PromoCardsManager";
 
 export const Route = createFileRoute("/_authenticated/admin/promotions")({ component: PromotionsPage });
 
@@ -63,10 +64,13 @@ function PromotionsPage() {
       <h1 className="text-2xl font-bold">Promotions</h1>
       <Tabs defaultValue="banners">
         <TabsList>
+          <TabsTrigger value="promo-cards">Promo Cards</TabsTrigger>
           <TabsTrigger value="banners">Banners</TabsTrigger>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="coupons">Coupons</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="promo-cards" className="pt-4"><PromoCardsManager/></TabsContent>
 
         <TabsContent value="banners" className="space-y-3 pt-4">
           <Button size="sm" onClick={() => setBanner({ id: null, title: "", subtitle: "", badge: "", image_url: "", link_url: "", sort_order: 0, is_active: true })}>
