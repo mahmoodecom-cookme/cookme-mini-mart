@@ -6,6 +6,7 @@ import { getStorefront } from '@/lib/catalog.functions';
 import { SiteLayout } from '@/components/site/SiteLayout';
 import { ProductCard } from '@/components/site/ProductCard';
 import { FeatureCarousel } from '@/components/site/FeatureCarousel';
+import { PromoCardsCarousel } from '@/components/site/PromoCardsCarousel';
 import { Button } from '@/components/ui/button';
 import { settingsMap } from '@/lib/format';
 import clipboard from '@/assets/list-clipboard.webp.asset.json';
@@ -27,7 +28,7 @@ export const Route = createFileRoute('/')({
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function Home() {
   const { data } = useSuspenseQuery(storefrontQuery);
-  const {categories,products,settings,campaigns,features} = data as {categories:any[];products:any[];settings:{key:string;value:string|null}[];campaigns:any[];features:FeatureCard[]};
+  const {categories,products,settings,campaigns,features,promoCards} = data as {categories:any[];products:any[];settings:{key:string;value:string|null}[];campaigns:any[];features:FeatureCard[];promoCards:{id:string;image_url:string;link_url:string|null;sort_order:number}[]};
   const navigate = useNavigate();
   const s=settingsMap(settings);
   const [q,setQ]=useState('');
@@ -42,6 +43,7 @@ function Home() {
       <h1 className="sr-only">Cook Me Mini Mart</h1><Link to="/products" className="home-hero-link" aria-label="Order now"/>
     </section>
     <form className="home-search" onSubmit={e=>{e.preventDefault();navigate({to:'/products',search:{q:q.trim()}});}}><Search size={20}/><input value={q} onChange={e=>setQ(e.target.value)} aria-label="Search products" placeholder="Search for products…"/><Button type="submit" variant="ghost" size="icon" aria-label="Search products"><ArrowRight/></Button></form>
+    <PromoCardsCarousel cards={promoCards}/>
     <FeatureCarousel cards={features}/>
     {categories.length>0 && <section className="home-section category-section"><div className="section-heading"><h2>Shop by category</h2><Link to="/products">View all <ChevronRight/></Link></div><div className="category-carousel"><Button className="category-arrow prev" size="icon" aria-label="Previous categories" onClick={()=>scrollCategories(-1)}><ChevronLeft/></Button><div ref={categoryTrack} className="category-track no-scrollbar" onScroll={e=>{const el=e.currentTarget;setCategoryPage(el.scrollLeft>el.scrollWidth-el.clientWidth-20?2:el.scrollLeft>20?1:0);}}>{categories.map(c=>{const Icon=categoryIcon(c.slug);return <Link to="/category/$slug" params={{slug:c.slug}} key={c.id} className="home-category"><div className="category-card"><div className="category-photo">{c.image_url?<img src={c.image_url} alt={c.name} loading="lazy"/>:<Icon/>}</div><div className="category-label"><span><Icon/></span><strong>{c.name}</strong><i/></div></div></Link>;})}</div><Button className="category-arrow next" size="icon" aria-label="Next categories" onClick={()=>scrollCategories(1)}><ChevronRight/></Button></div><div className="category-dots">{[0,1,2].map(i=><span key={i} data-active={categoryPage===i}/>)}</div></section>}
     {campaigns.length>0 && <section className="home-section home-promotions">{campaigns.map(c=><div key={c.id}><strong>{c.title}</strong>{c.description && <p>{c.description}</p>}{Number(c.discount_percent)>0 && <b>{Number(c.discount_percent)}% OFF</b>}</div>)}</section>}
