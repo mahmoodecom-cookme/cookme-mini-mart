@@ -355,7 +355,9 @@
 .home-design .home-promo-carousel { position: relative; max-width: 80rem; margin-inline: auto; }
 .home-design .promo-card-track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; padding: 4px 16px 8px; -webkit-overflow-scrolling: touch; cursor: grab; }
 .home-design .promo-card-track:active { cursor: grabbing; }
-.home-design .promo-card { position: relative; display: block; flex: 0 0 max(36vw, 120px); aspect-ratio: 5 / 8; overflow: hidden; scroll-snap-align: start; border-radius: 14px; box-shadow: var(--design-shadow); background: var(--design-pink); color: inherit; transition: transform 160ms ease, box-shadow 160ms ease; }
+.home-design .promo-card-track > .promo-card:first-child { margin-left: auto; }
+.home-design .promo-card-track > .promo-card:last-child { margin-right: auto; }
+.home-design .promo-card { position: relative; display: block; flex: 0 0 max(36vw, 120px); aspect-ratio: 5 / 8; overflow: hidden; scroll-snap-align: start; border-radius: 22px; box-shadow: var(--design-shadow); background: var(--design-pink); color: inherit; transition: transform 160ms ease, box-shadow 160ms ease; }
 .home-design .promo-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; }
 .home-design .promo-card-link { cursor: pointer; }
 .home-design .promo-card:active { transform: scale(.985); }
@@ -380,7 +382,7 @@
 @media (min-width:1025px) {
  .home-design .home-promo-section { margin-block: 48px; padding-inline: 40px; }
  .home-design .promo-card-track { gap: 16px; padding-inline: 0; }
- .home-design .promo-card { flex-basis: clamp(160px, 15vw, 220px); }
+ .home-design .promo-card { flex-basis: clamp(200px, 18vw, 280px); border-radius: 26px; }
  .home-design .promo-card:hover { transform: translateY(-3px); box-shadow: 0 12px 25px #00000020; }
  .home-design .promo-arrow { position: absolute; top: 50%; z-index: 2; display: inline-flex; width: 38px; height: 38px; transform: translateY(-50%); border-radius: 50%; background: var(--design-white); box-shadow: var(--design-shadow); }
  .home-design .promo-arrow-prev { left: -18px; }
@@ -608,6 +610,3 @@
 @media (prefers-reduced-motion: reduce) {
   .home-design .benefit-slide { transition: none; }
 }
-/* Center promo cards when they all fit; normal left-start scrolling when they overflow */
-.home-design .promo-card-track > .promo-card:first-child { margin-left: auto; }
-.home-design .promo-card-track > .promo-card:last-child { margin-right: auto; }
