@@ -608,3 +608,6 @@
 @media (prefers-reduced-motion: reduce) {
   .home-design .benefit-slide { transition: none; }
 }
+/* Center promo cards when they all fit; normal left-start scrolling when they overflow */
+.home-design .promo-card-track > .promo-card:first-child { margin-left: auto; }
+.home-design .promo-card-track > .promo-card:last-child { margin-right: auto; }
