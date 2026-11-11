@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { createUploadTicket } from "@/lib/admin.functions";
@@ -135,7 +134,7 @@ export function PromoCardsManager() {
           <div className="space-y-2"><Label>Card image</Label>{draft.image_url ? <img src={draft.image_url} alt="Live promo preview" className="mx-auto aspect-[5/8] w-36 rounded-md bg-muted object-cover"/> : <div className="mx-auto aspect-[5/8] w-36 rounded-md border border-dashed bg-muted"/>}
             <p className="text-xs text-muted-foreground">Recommended size: 600 x 960 px (5:8 ratio), PNG/JPG/WEBP. Files up to 5 MB; other shapes are center-cropped.</p>
             <Button type="button" variant="outline" className="w-full" disabled={uploading} onClick={() => document.getElementById("promo-card-file")?.click()}>{uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Uploading image…</> : <><Upload className="mr-2 h-4 w-4"/>{draft.image_url ? "Replace image" : "Upload image"}</>}</Button>
-            {uploading && <Progress value={undefined} aria-label="Uploading image"/>}<input id="promo-card-file" className="hidden" type="file" accept="image/png,image/jpeg,image/webp" onChange={pickImage}/>
+            {uploading && <div role="progressbar" aria-label="Uploading image" aria-valuetext="Upload in progress" className="h-2 w-full overflow-hidden rounded-full bg-muted"><div className="h-full w-2/5 animate-pulse rounded-full bg-primary"/></div>}<input id="promo-card-file" className="hidden" type="file" accept="image/png,image/jpeg,image/webp" onChange={pickImage}/>
           </div>
           <div className="space-y-1.5"><Label htmlFor="promo-card-link">Optional link URL</Label><Input id="promo-card-link" value={draft.link_url} onChange={(event) => setDraft({ ...draft, link_url: event.target.value })} placeholder="/products or https://…" /></div>
           <label className="flex items-center justify-between gap-2 text-sm">Active on Home<Switch checked={draft.is_active} onCheckedChange={(value) => setDraft({ ...draft, is_active: value })}/></label>

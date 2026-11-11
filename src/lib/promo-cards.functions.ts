@@ -16,7 +16,7 @@ export const savePromoCard = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({
     id: z.string().uuid().optional(),
     image_url: z.string().trim().min(1).max(1000),
-    link_url: z.string().trim().max(500).nullable().optional().refine((value) => !value || (value.startsWith("/") && !value.startsWith("//")) || /^https?:\/\//i.test(value), "Use a site path or HTTP(S) link."),
+    link_url: z.string().trim().max(500).nullable().optional().refine((value) => !value || (/^\/(?!\/|\\)/.test(value) && !/[\u0000-\u001f]/.test(value)) || /^https?:\/\//i.test(value), "Use a site path or HTTP(S) link."),
     sort_order: z.number().int().min(0).max(999),
     is_active: z.boolean(),
   }).parse(input))
