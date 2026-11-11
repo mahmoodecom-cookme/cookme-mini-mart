@@ -44,7 +44,7 @@ export function PromoCardsCarousel({ cards }: { cards: PromoCard[] }) {
           onMouseDown={(e) => { if (e.button !== 0) return; drag.current = { startX: e.clientX, scrollLeft: e.currentTarget.scrollLeft, moved: false }; }}
           onMouseMove={(e) => { const d = drag.current; if (!d || !e.buttons) return; const dx = e.clientX - d.startX; if (Math.abs(dx) > 4) d.moved = true; if (d.moved) e.currentTarget.scrollLeft = d.scrollLeft - dx; }}
           onMouseUp={() => { if (drag.current?.moved) { dragged.current = true; requestAnimationFrame(refresh); window.setTimeout(() => { dragged.current = false; }, 200); } drag.current = null; }}
-          onMouseLeave={() => { drag.current = null; }}>
+          onKeyDown={(e) => { if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return; e.preventDefault(); scrollByCards(e.key === "ArrowLeft" ? -1 : 1); }} onMouseLeave={() => { drag.current = null; }}>
           {cards.map((card) => {
             const content = <PromoImage image={card} />;
             return card.link_url ? <a key={card.id} className="promo-card promo-card-link" href={card.link_url} draggable={false} onClick={(e) => { if (dragged.current) e.preventDefault(); }} onDragStart={(e) => e.preventDefault()}>{content}</a>
