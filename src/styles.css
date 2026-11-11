@@ -350,7 +350,7 @@
 .home-design .benefit-slide[data-offset="3"]  { transform: translateX(58%)  scale(.36); opacity: .32; filter: blur(2px); z-index: 1; pointer-events: none; }
 
 /* Homepage image-only promotion carousel. */
-.home-design .home-promo-section { margin: 32px 0; padding-inline: 16px; }
+.home-design .home-promo-section { margin: 32px 0; padding-inline: 0; }
 .home-design .home-promo-carousel { position: relative; max-width: 80rem; margin-inline: auto; }
 .home-design .promo-card-track { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; padding: 4px 16px 8px; -webkit-overflow-scrolling: touch; cursor: grab; }
 .home-design .promo-card-track:active { cursor: grabbing; }
