@@ -7,14 +7,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { createUploadTicket } from "@/lib/admin.functions";
+import { isVideoUrl } from "@/lib/media";
 import { deletePromoCard, getAdminPromoCards, reorderPromoCards, savePromoCard } from "@/lib/promo-cards.functions";
 
+// image_url stores either an image or a short video URL (the type is detected from the file extension).
 type PromoCard = { id: string; image_url: string; link_url: string | null; sort_order: number; is_active: boolean };
 type Draft = { id?: string; image_url: string; link_url: string; sort_order: number; is_active: boolean };
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 30 * 1024 * 1024;
+const MAX_VIDEO_SECONDS = 30;
+const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const VIDEO_TYPES = ["video/mp4", "video/webm"];
 
 async function cropToFiveByEight(file: File): Promise<Blob> {
   const source = URL.createObjectURL(file);
@@ -41,6 +48,24 @@ async function cropToFiveByEight(file: File): Promise<Blob> {
   }
 }
 
+function readVideoDuration(file: File): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    const done = () => URL.revokeObjectURL(url);
+    video.preload = "metadata";
+    video.onloadedmetadata = () => { const seconds = video.duration; done(); resolve(seconds); };
+    video.onerror = () => { done(); reject(new Error("This video could not be read. Use an MP4 (H.264) or WEBM file.")); };
+    video.src = url;
+  });
+}
+
+function Preview({ url, className, alt }: { url: string; className: string; alt: string }) {
+  return isVideoUrl(url)
+    ? <video src={`${url}#t=0.001`} className={className} muted loop playsInline autoPlay preload="metadata" aria-label={alt} />
+    : <img src={url} alt={alt} className={className} />;
+}
+
 export function PromoCardsManager() {
   const queryClient = useQueryClient();
   const { data = [], isLoading } = useQuery({ queryKey: ["admin", "promo-cards"], queryFn: () => getAdminPromoCards() });
@@ -48,9 +73,9 @@ export function PromoCardsManager() {
   const [uploading, setUploading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<PromoCard | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
-  const uploadTicket = async (blob: Blob) => {
-    const ticket = await createUploadTicket({ data: { fileName: `promo-${Date.now()}.webp`, kind: "image" } });
-    const { error } = await supabase.storage.from("uploads").uploadToSignedUrl(ticket.path, ticket.token, blob, { contentType: "image/webp" });
+  const uploadTicket = async (blob: Blob, kind: "image" | "video", fileName: string, contentType: string) => {
+    const ticket = await createUploadTicket({ data: { fileName, kind } });
+    const { error } = await supabase.storage.from("uploads").uploadToSignedUrl(ticket.path, ticket.token, blob, { contentType });
     if (error) throw new Error(error.message);
     return ticket.url;
   };
@@ -83,20 +108,31 @@ export function PromoCardsManager() {
     reorder.mutate(next.map((card) => card.id));
     setDraggingId(null);
   };
-  const pickImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const pickMedia = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file || !draft) return;
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) return toast.error("Choose a PNG, JPG, or WEBP image.");
-    if (file.size > MAX_FILE_SIZE) return toast.error("Images must be 5 MB or smaller.");
+    const isVideo = VIDEO_TYPES.includes(file.type);
+    if (!isVideo && !IMAGE_TYPES.includes(file.type)) return toast.error("Choose a PNG, JPG, WEBP image or an MP4 / WEBM video.");
+    if (!isVideo && file.size > MAX_IMAGE_SIZE) return toast.error("Images must be 5 MB or smaller.");
+    if (isVideo && file.size > MAX_VIDEO_SIZE) return toast.error("Videos must be 30 MB or smaller.");
     setUploading(true);
     try {
-      const cropped = await cropToFiveByEight(file);
-      const url = await uploadTicket(cropped);
+      let url: string;
+      if (isVideo) {
+        const seconds = await readVideoDuration(file);
+        if (seconds > MAX_VIDEO_SECONDS) throw new Error(`Keep videos under ${MAX_VIDEO_SECONDS} seconds (this one is ${Math.round(seconds)}s).`);
+        const ext = file.type === "video/webm" ? "webm" : "mp4";
+        url = await uploadTicket(file, "video", `promo-${Date.now()}.${ext}`, file.type);
+        toast.success("Video uploaded");
+      } else {
+        const cropped = await cropToFiveByEight(file);
+        url = await uploadTicket(cropped, "image", `promo-${Date.now()}.webp`, "image/webp");
+        toast.success("Image uploaded and center-cropped");
+      }
       setDraft((current) => current ? { ...current, image_url: url } : current);
-      toast.success("Image uploaded and center-cropped");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Image upload failed");
+      toast.error(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -105,16 +141,16 @@ export function PromoCardsManager() {
 
   return <div className="space-y-4">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="max-w-2xl text-sm text-muted-foreground">Upload image-only cards. Images are center-cropped to the 5:8 display shape.</p>
+      <p className="max-w-2xl text-sm text-muted-foreground">Upload your own post designs (images) or short videos. Everything is shown in the 5:8 card shape: images are center-cropped, videos autoplay muted on a loop.</p>
       <Button onClick={() => setDraft({ image_url: "", link_url: "", sort_order: data.length, is_active: true })}><Plus className="mr-2 h-4 w-4"/>Add promo card</Button>
     </div>
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {data.map((card, index) => <Card key={card.id} draggable onDragStart={() => setDraggingId(card.id)} onDragOver={(event) => event.preventDefault()} onDrop={() => saveDroppedOrder(card.id)} onDragEnd={() => setDraggingId(null)} className={draggingId === card.id ? "opacity-50" : ""}>
         <CardContent className="flex gap-4 p-4">
-          <img src={card.image_url} alt="Promo card preview" className="aspect-[5/8] w-24 shrink-0 rounded-md bg-muted object-cover" />
+          <Preview url={card.image_url} alt="Promo card preview" className="aspect-[5/8] w-24 shrink-0 rounded-md bg-muted object-cover" />
           <div className="flex min-w-0 flex-1 flex-col gap-3">
             <label className="flex items-center justify-between gap-2 text-sm">Active<Switch checked={card.is_active} onCheckedChange={() => toggle.mutate(card)} /></label>
-            <div className="space-y-1"><span className="text-xs text-muted-foreground">Link</span><p className="break-all text-sm">{card.link_url || "No link"}</p></div>
+            <div className="space-y-1"><span className="text-xs text-muted-foreground">{isVideoUrl(card.image_url) ? "Video card · Link" : "Image card · Link"}</span><p className="break-all text-sm">{card.link_url || "No link"}</p></div>
             <div className="mt-auto flex flex-wrap gap-2">
               <Button variant="outline" size="icon" aria-label="Move promo card up" disabled={index === 0 || reorder.isPending} onClick={() => move(index, -1)}><ArrowUp className="h-4 w-4"/></Button>
               <Button variant="outline" size="icon" aria-label="Move promo card down" disabled={index === data.length - 1 || reorder.isPending} onClick={() => move(index, 1)}><ArrowDown className="h-4 w-4"/></Button>
@@ -129,12 +165,12 @@ export function PromoCardsManager() {
 
     <AlertDialog open={!!draft} onOpenChange={(open) => !open && !uploading && setDraft(null)}>
       <AlertDialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-        <AlertDialogHeader><AlertDialogTitle>{draft?.id ? "Edit promo card" : "New promo card"}</AlertDialogTitle><AlertDialogDescription>Only the uploaded image appears on the Home page.</AlertDialogDescription></AlertDialogHeader>
+        <AlertDialogHeader><AlertDialogTitle>{draft?.id ? "Edit promo card" : "New promo card"}</AlertDialogTitle><AlertDialogDescription>Only the uploaded image or video appears on the Home page.</AlertDialogDescription></AlertDialogHeader>
         {draft && <div className="space-y-4">
-          <div className="space-y-2"><Label>Card image</Label>{draft.image_url ? <img src={draft.image_url} alt="Live promo preview" className="mx-auto aspect-[5/8] w-36 rounded-md bg-muted object-cover"/> : <div className="mx-auto aspect-[5/8] w-36 rounded-md border border-dashed bg-muted"/>}
-            <p className="text-xs text-muted-foreground">Recommended size: 600 x 960 px (5:8 ratio), PNG/JPG/WEBP. Files up to 5 MB; other shapes are center-cropped.</p>
-            <Button type="button" variant="outline" className="w-full" disabled={uploading} onClick={() => document.getElementById("promo-card-file")?.click()}>{uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Uploading image…</> : <><Upload className="mr-2 h-4 w-4"/>{draft.image_url ? "Replace image" : "Upload image"}</>}</Button>
-            {uploading && <div role="progressbar" aria-label="Uploading image" aria-valuetext="Upload in progress" className="h-2 w-full overflow-hidden rounded-full bg-muted"><div className="h-full w-2/5 animate-pulse rounded-full bg-primary"/></div>}<input id="promo-card-file" className="hidden" type="file" accept="image/png,image/jpeg,image/webp" onChange={pickImage}/>
+          <div className="space-y-2"><Label>Card image or video</Label>{draft.image_url ? <Preview url={draft.image_url} alt="Live promo preview" className="mx-auto aspect-[5/8] w-36 rounded-md bg-muted object-cover"/> : <div className="mx-auto aspect-[5/8] w-36 rounded-md border border-dashed bg-muted"/>}
+            <p className="text-xs text-muted-foreground">Images: 600 x 960 px (5:8), PNG/JPG/WEBP, up to 5 MB; other shapes are center-cropped. Videos: vertical 5:8 (e.g. 720 x 1152), MP4 (H.264) or WEBM, up to 30 seconds and 30 MB, shown muted on a loop.</p>
+            <Button type="button" variant="outline" className="w-full" disabled={uploading} onClick={() => document.getElementById("promo-card-file")?.click()}>{uploading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Uploading…</> : <><Upload className="mr-2 h-4 w-4"/>{draft.image_url ? "Replace image or video" : "Upload image or video"}</>}</Button>
+            {uploading && <Progress value={undefined} aria-label="Uploading media"/>}<input id="promo-card-file" className="hidden" type="file" accept="image/png,image/jpeg,image/webp,video/mp4,video/webm" onChange={pickMedia}/>
           </div>
           <div className="space-y-1.5"><Label htmlFor="promo-card-link">Optional link URL</Label><Input id="promo-card-link" value={draft.link_url} onChange={(event) => setDraft({ ...draft, link_url: event.target.value })} placeholder="/products or https://…" /></div>
           <label className="flex items-center justify-between gap-2 text-sm">Active on Home<Switch checked={draft.is_active} onCheckedChange={(value) => setDraft({ ...draft, is_active: value })}/></label>
