@@ -46,6 +46,10 @@ export const reorderPromoCards = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ ids: z.array(z.string().uuid()).max(200) }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
+    for (const [index, id] of data.ids.entries()) {
+      const { error } = await db.from("promo_cards").update({ sort_order: 10000 + index }).eq("id", id);
+      if (error) throw new Error("Could not reorder promo cards.");
+    }
     for (const [sort_order, id] of data.ids.entries()) {
       const { error } = await db.from("promo_cards").update({ sort_order }).eq("id", id);
       if (error) throw new Error("Could not reorder promo cards.");
