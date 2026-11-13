@@ -18,7 +18,17 @@ import { deletePromo, getAdminPromotions, saveBanner, saveCampaign, saveCoupon }
 import { money } from "@/lib/format";
 import { PromoCardsManager } from "@/components/admin/PromoCardsManager";
 
-export const Route = createFileRoute("/_authenticated/admin/promotions")({ component: PromotionsPage });
+export const Route = createFileRoute("/_authenticated/admin/promotions")({
+  head: () => ({ meta: [
+    { title: "Promotions — Cook Me Owner" },
+    { name: "description", content: "Manage Cook Me promotional banners, offer cards, campaigns and coupons." },
+    { property: "og:title", content: "Promotions — Cook Me Owner" },
+    { property: "og:description", content: "Manage store promotions and homepage offer cards." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+  component: PromotionsPage,
+});
 
 type BannerDraft = { id: string | null; title: string; subtitle: string; badge: string; image_url: string; link_url: string; sort_order: number; is_active: boolean };
 type CampaignDraft = { id: string | null; title: string; description: string; discount_percent: number; starts_at: string; ends_at: string; sort_order: number; is_active: boolean };
