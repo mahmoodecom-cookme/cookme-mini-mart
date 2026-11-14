@@ -657,3 +657,14 @@
   .home-design .feature-carousel { --fw: 19cqw; }
   .home-design .category-section { --k: .7; }
 }
+/* ===== Mobile only: feature cards coverflow like desktop (side cards fully visible) ===== */
+@media (max-width: 767px) {
+  .home-design .feature-carousel { --fw: 36cqw; margin-top: 6cqw; }
+
+  .home-design .benefit-slide[data-offset="-1"] { transform: translateX(-95.5%) scale(.764) rotateY(-18.6deg); }
+  .home-design .benefit-slide[data-offset="1"]  { transform: translateX(95.5%)  scale(.764) rotateY(18.6deg); }
+  .home-design .benefit-slide[data-offset="-2"] { transform: translateX(-157%)  scale(.58)  rotateY(-14.5deg); }
+  .home-design .benefit-slide[data-offset="2"]  { transform: translateX(157%)   scale(.58)  rotateY(14.5deg); }
+  .home-design .benefit-slide[data-offset="-3"] { transform: translateX(-58%)   scale(.36); }
+  .home-design .benefit-slide[data-offset="3"]  { transform: translateX(58%)    scale(.36); }
+}
