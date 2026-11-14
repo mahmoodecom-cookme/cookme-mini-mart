@@ -14,3 +14,4 @@
 - Home hero artwork uses store_settings hero_image/hero_mobile_image; active feature_cards feed the non-cloning carousel. Admin saves invalidate the storefront query so both surfaces share current data.
 - Catalogue query state lives in URL search parameters; shared pure matching logic combines text search with category filtering.
 - Homepage promo cards use their own public-active/admin-managed table and a reusable image-only carousel; keep upload, ordering, and storefront cache invalidation on that shared data path.
+- Keep public store settings behind an explicit display-key allowlist, and route anonymous customer photo uploads through validated server-side storage writes rather than an unbound storage policy.
