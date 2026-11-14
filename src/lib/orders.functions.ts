@@ -137,6 +137,29 @@ export const submitQuickOrder = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+export const uploadQuickOrderPhoto = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({ dataUrl: z.string().min(40).max(7_000_000) }).parse(data))
+  .handler(async ({ data }) => {
+    const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(data.dataUrl);
+    if (!match) throw new Error("Choose a JPEG, PNG, or WebP image under 5 MB.");
+    const contentType = match[1]!;
+    const encoded = match[2]!;
+    const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
+    if (!bytes.length || bytes.length > 5 * 1024 * 1024) throw new Error("Choose an image under 5 MB.");
+    const validSignature = contentType === "image/png"
+      ? bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47
+      : contentType === "image/jpeg"
+        ? bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
+        : bytes.length >= 12 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+    if (!validSignature) throw new Error("The selected file is not a valid image.");
+    const extension = contentType === "image/jpeg" ? "jpg" : contentType === "image/png" ? "png" : "webp";
+    const path = `quick-orders/${crypto.randomUUID()}.${extension}`;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.storage.from("uploads").upload(path, bytes, { contentType, upsert: false });
+    if (error) throw new Error("Photo upload failed. Please try again.");
+    return { path };
+  });
+
 export const submitSupport = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) =>
     z

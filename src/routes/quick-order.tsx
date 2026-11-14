@@ -3,13 +3,12 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CheckCircle2, Upload, X } from "lucide-react";
-import { submitQuickOrder } from "@/lib/orders.functions";
+import { submitQuickOrder, uploadQuickOrderPhoto } from "@/lib/orders.functions";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/quick-order")({
   head: () => ({
@@ -31,6 +30,7 @@ export const Route = createFileRoute("/quick-order")({
 
 function QuickOrder() {
   const submit = useServerFn(submitQuickOrder);
+  const uploadPhoto = useServerFn(uploadQuickOrderPhoto);
   const [form, setForm] = useState({ customerName: "", phone: "", address: "", message: "" });
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -46,10 +46,14 @@ function QuickOrder() {
     try {
       let imageUrl = "";
       if (file) {
-        const path = `quick-orders/${Date.now()}-${Math.random().toString(36).slice(2)}.${file.name.split(".").pop()}`;
-        const { error } = await supabase.storage.from("uploads").upload(path, file, { upsert: false });
-        if (error) throw new Error("Photo upload failed. Please try a smaller image.");
-        imageUrl = path;
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Photo upload failed. Please try again."));
+          reader.onerror = () => reject(new Error("Photo upload failed. Please try again."));
+          reader.readAsDataURL(file);
+        });
+        const result = await uploadPhoto({ data: { dataUrl } });
+        imageUrl = result.path;
       }
 
       await submit({ data: { ...form, imageUrl } });
@@ -156,7 +160,7 @@ function QuickOrder() {
             <input
               id="qfile"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];

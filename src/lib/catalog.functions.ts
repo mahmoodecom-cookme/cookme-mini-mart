@@ -2,6 +2,31 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
+const PUBLIC_SETTING_KEYS = [
+  "hero_image",
+  "hero_mobile_image",
+  "announcement_enabled",
+  "announcement_text",
+  "menu_links",
+  "delivery_fee",
+  "free_delivery_threshold",
+  "theme_primary",
+  "theme_background",
+  "theme_secondary",
+  "footer_about",
+  "footer_delivery_note",
+  "footer_returns_note",
+  "footer_payment_note",
+  "footer_copyright",
+  "social_facebook",
+  "social_instagram",
+  "social_youtube",
+  "contact_address",
+  "business_address",
+  "contact_phone",
+  "business_phone",
+] as const;
+
 function publicClient() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
   const url = process.env.SUPABASE_URL!;
@@ -29,7 +54,7 @@ export const getStorefront = createServerFn({ method: "GET" }).handler(async () 
       .eq("is_active", true)
       .order("sort_order")
       .limit(60),
-    db.from("store_settings").select("*"),
+    db.from("store_settings").select("key, value").in("key", [...PUBLIC_SETTING_KEYS]),
     db.from("campaigns").select("*").eq("is_active", true).order("sort_order"),
     db.from("feature_cards").select("*").eq("is_active", true).order("sort_order").order("id"),
     db.from("promo_cards").select("id, image_url, link_url, sort_order, is_active, created_at").eq("is_active", true).order("sort_order").order("id"),
@@ -102,7 +127,7 @@ export const getCategory = createServerFn({ method: "GET" })
 
 export const getSettings = createServerFn({ method: "GET" }).handler(async () => {
   const db = publicClient();
-  const { data } = await db.from("store_settings").select("*");
+  const { data } = await db.from("store_settings").select("key, value").in("key", [...PUBLIC_SETTING_KEYS]);
   return data ?? [];
 });
 

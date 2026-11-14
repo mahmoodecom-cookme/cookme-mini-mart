@@ -22,6 +22,13 @@
       "when": 1794154040874,
       "tag": "0002_create_promo_cards",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794647609688,
+      "tag": "0003_tighten_storefront_and_upload_policies",
+      "breakpoints": true
     }
   ]
 }
