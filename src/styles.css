@@ -668,3 +668,12 @@
   .home-design .benefit-slide[data-offset="-3"] { transform: translateX(-58%)   scale(.36); }
   .home-design .benefit-slide[data-offset="3"]  { transform: translateX(58%)    scale(.36); }
 }
+/* ===== Mobile only: slightly bigger feature cards ===== */
+@media (max-width: 767px) {
+  .home-design .feature-carousel { --fw: 39cqw; }
+
+  .home-design .benefit-slide[data-offset="-1"] { transform: translateX(-90%)  scale(.764) rotateY(-18.6deg); }
+  .home-design .benefit-slide[data-offset="1"]  { transform: translateX(90%)   scale(.764) rotateY(18.6deg); }
+  .home-design .benefit-slide[data-offset="-2"] { transform: translateX(-148%) scale(.58)  rotateY(-14.5deg); }
+  .home-design .benefit-slide[data-offset="2"]  { transform: translateX(148%)  scale(.58)  rotateY(14.5deg); }
+}
