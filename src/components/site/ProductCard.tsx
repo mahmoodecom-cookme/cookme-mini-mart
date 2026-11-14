@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
-import { money } from "@/lib/format";
+import { ShoppingCart } from "lucide-react";
+import { CURRENCY } from "@/lib/format";
 
 export type Variant = {
   id: string;
@@ -29,6 +29,8 @@ export function sortedVariants(p: ProductLite): Variant[] {
   return [...(p.product_variants ?? [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 }
 
+const amount = (value: number) => value.toLocaleString("en-PK", { maximumFractionDigits: 0 });
+
 export function ProductCard({ product }: { product: ProductLite }) {
   const variants = sortedVariants(product);
   const cheapest = variants.reduce<Variant | null>(
@@ -46,56 +48,40 @@ export function ProductCard({ product }: { product: ProductLite }) {
     <Link
       to="/products/$slug"
       params={{ slug: product.slug }}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-shadow hover:shadow-pop"
+      className="pcard"
+      data-out-of-stock={outOfStock ? "true" : undefined}
+      aria-label={`${product.name}, ${CURRENCY} ${amount(price)}`}
     >
-      <div className="relative aspect-square overflow-hidden bg-muted">
-        {img ? (
-          <img
-            src={img}
-            alt={product.name}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="grid h-full place-items-center text-xs font-medium text-muted-foreground">
-            No image
+      <article className="pcard-in">
+        <span className="pcard-media">
+          {img ? (
+            <img className="pcard-img" src={img} alt={product.name} loading="lazy" />
+          ) : (
+            <span className="pcard-noimg">No image</span>
+          )}
+          {(off > 0 || lowStock || outOfStock) && (
+            <span className="pcard-badges">
+              {off > 0 && <span className="pcard-badge">{off}% OFF</span>}
+              {lowStock && <span className="pcard-badge" data-kind="stock">Limited stock</span>}
+              {outOfStock && <span className="pcard-badge" data-kind="out">Out of stock</span>}
+            </span>
+          )}
+        </span>
+        <div className="pcard-info">
+          <h3 className="pcard-title">{product.name}</h3>
+          {variants.length > 1 && <span className="pcard-pill">{variants.length} sizes available</span>}
+          <div className="pcard-foot">
+            {off > 0 && <span className="pcard-old">{CURRENCY} {amount(compare)}</span>}
+            <p className="pcard-price">
+              <span className="pcard-cur">{CURRENCY}</span>
+              <span className="pcard-amt">{amount(price)}</span>
+            </p>
           </div>
-        )}
-        <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
-          {off > 0 && (
-            <span className="rounded-md bg-primary px-2 py-0.5 text-[11px] font-extrabold text-primary-foreground">
-              {off}% OFF
-            </span>
-          )}
-          {lowStock && (
-            <span className="rounded-md bg-warning px-2 py-0.5 text-[11px] font-bold text-warning-foreground">
-              Limited stock
-            </span>
-          )}
-          {outOfStock && (
-            <span className="rounded-md bg-secondary px-2 py-0.5 text-[11px] font-bold text-secondary-foreground">
-              Out of stock
-            </span>
-          )}
         </div>
-      </div>
-      <div className="flex flex-1 flex-col gap-1 p-3">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">{product.name}</h3>
-        {variants.length > 1 && (
-          <p className="text-[11px] font-medium text-muted-foreground">{variants.length} sizes available</p>
-        )}
-        <div className="mt-auto flex items-end justify-between pt-2">
-          <div className="min-w-0">
-            <p className="truncate text-base font-extrabold text-foreground">{money(price)}</p>
-            {off > 0 && (
-              <p className="truncate text-xs font-medium text-muted-foreground line-through">{money(compare)}</p>
-            )}
-          </div>
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-            <Plus className="h-5 w-5" />
-          </span>
-        </div>
-      </div>
+        <span className="pcard-cart" aria-hidden="true">
+          <ShoppingCart />
+        </span>
+      </article>
     </Link>
   );
 }
