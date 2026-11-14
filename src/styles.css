@@ -622,3 +622,38 @@
   }
   .home-design .promo-card { flex: 0 0 max(36vw, 120px); }
 }
+/* ===== Smaller feature cards (coverflow) + Shop by category ===== */
+
+/* Mobile */
+@media (max-width: 767px) {
+  .home-design .feature-carousel { --fw: 46cqw; margin-top: 7cqw; }
+
+  .home-design .category-section { padding: 4cqw 5cqw 5cqw; }
+  .home-design .category-section .section-heading { margin: 0 0 3.5cqw; }
+  .home-design .category-section .section-heading h2 { font-size: 5cqw; }
+  .home-design .category-section .section-heading > a { font-size: 3.2cqw; }
+  .home-design .category-section .section-heading > a svg { width: 3.8cqw; height: 3.8cqw; }
+  .home-design .category-track { gap: 3cqw; padding-bottom: 4cqw; }
+  .home-design .home-category { flex-basis: 38%; }
+  .home-design .category-arrow { top: 26cqw; width: 8cqw; height: 8cqw; }
+  .home-design .category-arrow svg { width: 4cqw; height: 4cqw; }
+  .home-design .category-dots { gap: 2.6cqw; }
+  .home-design .category-dots span { width: 2.6cqw; height: 2.6cqw; }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home-design .feature-carousel { --fw: 25cqw; }
+
+  .home-design .category-section .section-heading h2 { font-size: 3cqw; }
+  .home-design .category-section .section-heading > a { font-size: 1.8cqw; }
+  .home-design .category-track { gap: 2.4cqw; }
+  .home-design .home-category { flex-basis: calc((100% - 7.2cqw) / 4); }
+  .home-design .category-arrow { top: 14.5cqw; width: 5cqw; height: 5cqw; }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .home-design .feature-carousel { --fw: 19cqw; }
+  .home-design .category-section { --k: .7; }
+}
