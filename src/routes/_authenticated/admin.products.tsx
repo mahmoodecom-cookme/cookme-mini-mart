@@ -201,7 +201,7 @@ function ProductsPage() {
                   <img
                     src={(Array.isArray(p.images) ? (p.images[0] as string) : "") || "/placeholder.svg"}
                     alt={p.name}
-                    className="h-16 w-16 rounded-lg border object-cover"
+                    className="h-16 w-16 rounded-lg border bg-white object-contain"
                   />
                   <div className="min-w-40 flex-1">
                     <p className="font-semibold">{p.name}</p>
