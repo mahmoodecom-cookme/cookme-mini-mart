@@ -122,7 +122,7 @@ function ProductPage() {
           <div>
             <div className="aspect-square overflow-hidden rounded-2xl border border-border bg-muted">
               {images[img] ? (
-                <img src={images[img]} alt={product.name} className="h-full w-full object-cover" />
+                <img src={images[img]} alt={product.name} className="h-full w-full object-contain" />
               ) : (
                 <div className="grid h-full place-items-center text-sm text-muted-foreground">No image yet</div>
               )}
@@ -135,7 +135,7 @@ function ProductPage() {
                     onClick={() => setImg(i)}
                     className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 ${i === img ? "border-primary" : "border-border"}`}
                   >
-                    <img src={src} alt={`${product.name} view ${i + 1}`} loading="lazy" className="h-full w-full object-cover" />
+                    <img src={src} alt={`${product.name} view ${i + 1}`} loading="lazy" className="h-full w-full object-contain bg-white" />
                   </button>
                 ))}
               </div>
